@@ -1,0 +1,109 @@
+2025-06-15T04:04:51+02:00 | URI recebida: Itaipu-intranet/public/api/funcionarios
+2025-06-15T04:04:55+02:00 | URI recebida: Itaipu-intranet/public/api/funcionarios
+2025-06-15T04:05:01+02:00 | URI recebida: Itaipu-intranet/public/api/funcionarios
+2025-06-15T04:06:35+02:00 | URI recebida: test-router
+2025-06-15T04:06:40+02:00 | URI recebida: test-router
+2025-06-15T04:06:59+02:00 | URI recebida: funcionarios
+2025-06-15T04:07:04+02:00 | URI recebida: funcionarios
+2025-06-15T04:13:49+02:00 | URI recebida: funcionarios
+2025-06-15T04:15:58+02:00 | Método: GET | URI recebida: funcionarios
+Rotas registradas: Array
+(
+    [GET] => Array
+        (
+            [test-router] => Closure Object
+                (
+                )
+
+            [funcionarios] => FuncionarioController@index
+            [funcionarios/] => FuncionarioController@index
+            [api/funcionarios] => FuncionarioController@index
+        )
+
+)
+
+2025-06-15T04:16:00+02:00 | Método: GET | URI recebida: funcionarios
+Rotas registradas: Array
+(
+    [GET] => Array
+        (
+            [test-router] => Closure Object
+                (
+                )
+
+            [funcionarios] => FuncionarioController@index
+            [funcionarios/] => FuncionarioController@index
+            [api/funcionarios] => FuncionarioController@index
+        )
+
+)
+
+2025-06-15T04:16:01+02:00 | Método: GET | URI recebida: funcionarios
+Rotas registradas: Array
+(
+    [GET] => Array
+        (
+            [test-router] => Closure Object
+                (
+                )
+
+            [funcionarios] => FuncionarioController@index
+            [funcionarios/] => FuncionarioController@index
+            [api/funcionarios] => FuncionarioController@index
+        )
+
+)
+
+2025-06-15T04:17:24+02:00 | Método: GET | URI recebida: funcionarios
+Rotas registradas: Array
+(
+    [GET] => Array
+        (
+            [test-router] => Closure Object
+                (
+                )
+
+            [funcionarios] => Closure Object
+                (
+                )
+
+            [funcionarios/] => Closure Object
+                (
+                )
+
+            [api/funcionarios] => Closure Object
+                (
+                )
+
+        )
+
+)
+
+2025-06-15T04:17:40+02:00 | Método: GET | URI recebida: funcionarios
+Rotas registradas: Array
+(
+    [GET] => Array
+        (
+            [test-router] => Closure Object
+                (
+                )
+
+            [funcionarios] => Closure Object
+                (
+                )
+
+            [funcionarios/] => Closure Object
+                (
+                )
+
+            [api/funcionarios] => Closure Object
+                (
+                )
+
+        )
+
+)
+
+2025-06-15T04:22:18+02:00 | Método: GET | URI recebida: funcionarios
+2025-06-15T04:22:34+02:00 | Método: GET | URI recebida: funcionarios
+2025-06-15T04:22:47+02:00 | Método: GET | URI recebida: funcionarios

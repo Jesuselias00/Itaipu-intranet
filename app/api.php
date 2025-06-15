@@ -12,7 +12,7 @@ $router->get('test-router', function() {
     echo json_encode(['status' => 'success', 'message' => 'Roteador funcionando!']);
 });
 
-// Rota para Listar Funcionários
+// Rotas para funcionários - usando o formato Controller@method
 $router->get('funcionarios', 'FuncionarioController@index');
 
 $router->dispatch();
