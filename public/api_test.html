@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste da API de Funcionários</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #276ef1;
+            text-align: center;
+        }
+        h2 {
+            color: #276ef1;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        .endpoint-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            background: #276ef1;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .btn:hover {
+            background: #1b5cd1;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        input[type="text"], 
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        label {
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef5ff;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .tab.active {
+            border: 1px solid #ddd;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+            background-color: #fff;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            max-width: 60px;
+            max-height: 60px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste da API de Funcionários</h1>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="listar">Listar Todos</div>
+            <div class="tab" data-tab="buscar">Buscar por ID</div>
+            <div class="tab" data-tab="criar">Criar Novo</div>
+            <div class="tab" data-tab="atualizar">Atualizar</div>
+            <div class="tab" data-tab="excluir">Excluir</div>
+        </div>
+
+        <div class="tab-content active" id="listar">
+            <h2>Listar Todos os Funcionários</h2>
+            <div class="endpoint-section">
+                <p><strong>Endpoint:</strong> GET <span id="baseUrlDisplay"></span></p>
+                <button id="btnListarFuncionarios" class="btn">Listar Funcionários</button>
+                <div class="response" id="responseListar"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="buscar">
+            <h2>Buscar Funcionário por ID</h2>
+            <div class="endpoint-section">
+                <p><strong>Endpoint:</strong> GET /api/funcionarios/{id}</p>
+                <div class="form-group">
+                    <label for="idFuncionarioGet">ID do Funcionário:</label>
+                    <input type="number" id="idFuncionarioGet" placeholder="Digite o ID do funcionário">
+                </div>
+                <button id="btnBuscarFuncionario" class="btn">Buscar Funcionário</button>
+                <div class="response" id="responseBuscar"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="criar">
+            <h2>Criar Novo Funcionário</h2>
+            <div class="endpoint-section">
+                <p><strong>Endpoint:</strong> POST /api/funcionarios</p>
+                <div class="form-group">
+                    <label for="nomeFuncionario">Nome:</label>
+                    <input type="text" id="nomeFuncionario" placeholder="Digite o nome">
+                </div>
+                <div class="form-group">
+                    <label for="sobrenomeFuncionario">Sobrenome:</label>
+                    <input type="text" id="sobrenomeFuncionario" placeholder="Digite o sobrenome">
+                </div>
+                <div class="form-group">
+                    <label for="documentoFuncionario">Número do Documento:</label>
+                    <input type="text" id="documentoFuncionario" placeholder="Digite o número do documento">
+                </div>
+                <div class="form-group">
+                    <label for="emailFuncionario">Email:</label>
+                    <input type="email" id="emailFuncionario" placeholder="Digite o email">
+                </div>
+                <div class="form-group">
+                    <label for="cargoFuncionario">Cargo:</label>
+                    <input type="text" id="cargoFuncionario" placeholder="Digite o cargo">
+                </div>
+                <div class="form-group">
+                    <label for="dataContratacaoFuncionario">Data de Contratação:</label>
+                    <input type="date" id="dataContratacaoFuncionario">
+                </div>
+                <div class="form-group">
+                    <label for="codigoSistemaFuncionario">Código do Sistema Interno:</label>
+                    <input type="text" id="codigoSistemaFuncionario" placeholder="Digite o código do sistema">
+                </div>
+                <div class="form-group">
+                    <label for="departamentoFuncionario">ID do Departamento:</label>
+                    <input type="number" id="departamentoFuncionario" placeholder="Digite o ID do departamento">
+                </div>
+                <div class="form-group">
+                    <label for="chefeFuncionario">ID do Chefe Direto (opcional):</label>
+                    <input type="number" id="chefeFuncionario" placeholder="Digite o ID do chefe (opcional)">
+                </div>
+                <div class="form-group">
+                    <label for="fotoFuncionario">Foto:</label>
+                    <input type="file" id="fotoFuncionario" name="foto" accept="image/*">
+                </div>
+                <button id="btnCriarFuncionario" class="btn btn-success">Criar Funcionário</button>
+                <div class="response" id="responseCriar"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="atualizar">
+            <h2>Atualizar Funcionário</h2>
+            <div class="endpoint-section">
+                <p><strong>Endpoint:</strong> PUT /api/funcionarios/{id}</p>
+                <div class="form-group">
+                    <label for="idFuncionarioPut">ID do Funcionário:</label>
+                    <input type="number" id="idFuncionarioPut" placeholder="Digite o ID do funcionário">
+                    <button id="btnCarregarFuncionario" class="btn">Carregar Dados</button>
+                </div>
+                <div class="form-group">
+                    <label for="nomeFuncionarioPut">Nome:</label>
+                    <input type="text" id="nomeFuncionarioPut" placeholder="Digite o nome">
+                </div>
+                <div class="form-group">
+                    <label for="sobrenomeFuncionarioPut">Sobrenome:</label>
+                    <input type="text" id="sobrenomeFuncionarioPut" placeholder="Digite o sobrenome">
+                </div>
+                <div class="form-group">
+                    <label for="documentoFuncionarioPut">Número do Documento:</label>
+                    <input type="text" id="documentoFuncionarioPut" placeholder="Digite o número do documento">
+                </div>
+                <div class="form-group">
+                    <label for="emailFuncionarioPut">Email:</label>
+                    <input type="email" id="emailFuncionarioPut" placeholder="Digite o email">
+                </div>
+                <div class="form-group">
+                    <label for="cargoFuncionarioPut">Cargo:</label>
+                    <input type="text" id="cargoFuncionarioPut" placeholder="Digite o cargo">
+                </div>
+                <div class="form-group">
+                    <label for="dataContratacaoFuncionarioPut">Data de Contratação:</label>
+                    <input type="date" id="dataContratacaoFuncionarioPut">
+                </div>
+                <div class="form-group">
+                    <label for="codigoSistemaFuncionarioPut">Código do Sistema Interno:</label>
+                    <input type="text" id="codigoSistemaFuncionarioPut" placeholder="Digite o código do sistema">
+                </div>
+                <div class="form-group">
+                    <label for="departamentoFuncionarioPut">ID do Departamento:</label>
+                    <input type="number" id="departamentoFuncionarioPut" placeholder="Digite o ID do departamento">
+                </div>
+                <div class="form-group">
+                    <label for="chefeFuncionarioPut">ID do Chefe Direto (opcional):</label>
+                    <input type="number" id="chefeFuncionarioPut" placeholder="Digite o ID do chefe (opcional)">
+                </div>
+                <div class="form-group">
+                    <label for="fotoFuncionarioPut">Foto (opcional):</label>
+                    <input type="file" id="fotoFuncionarioPut" name="foto" accept="image/*">
+                </div>
+                <button id="btnAtualizarFuncionario" class="btn">Atualizar Funcionário</button>
+                <div class="response" id="responseAtualizar"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="excluir">
+            <h2>Excluir Funcionário</h2>
+            <div class="endpoint-section">
+                <p><strong>Endpoint:</strong> DELETE /api/funcionarios/{id}</p>
+                <div class="form-group">
+                    <label for="idFuncionarioDelete">ID do Funcionário:</label>
+                    <input type="number" id="idFuncionarioDelete" placeholder="Digite o ID do funcionário">
+                </div>
+                <button id="btnExcluirFuncionario" class="btn btn-danger">Excluir Funcionário</button>
+                <div class="response" id="responseExcluir"></div>
+            </div>
+        </div>
+    </div>    <script>
+        // Mostra a URL base atual na interface
+        document.getElementById('baseUrlDisplay').textContent = window.location.pathname.includes('Itaipu-intranet') 
+            ? '/Itaipu-intranet/api/funcionarios' 
+            : '/api/funcionarios';
+            
+        // Função utilitária para mostrar resposta formatada no elemento HTML
+        function showResponse(elementId, data) {
+            const responseElement = document.getElementById(elementId);
+            // Se data é um objeto com campo 'data' array, mostrar tabela
+            if (elementId === 'responseListar' && data && Array.isArray(data.data)) {
+                data = data.data;
+            }
+            // Mostrar tabela com foto para o listar
+            if (elementId === 'responseListar' && Array.isArray(data)) {
+                if (data.length === 0) {
+                    responseElement.innerHTML = '<em>Nenhum funcionário encontrado.</em>';
+                    return;
+                }
+                let html = `<style>
+                    .func-table {border-collapse:collapse;width:100%;background:#fff;}
+                    .func-table th, .func-table td {padding:8px 6px;border:1px solid #e0e0e0;text-align:center;}
+                    .func-table th {background:#f4f4f4;}
+                    .func-foto {max-width:60px;max-height:60px;border-radius:6px;box-shadow:0 1px 4px #aaa;cursor:pointer;transition:box-shadow .2s;}
+                    .func-foto:hover {box-shadow:0 2px 12px #276ef1;}
+                    .modal-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;}
+                    .modal-bg.active {display:flex;}
+                    .modal-img {max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 2px 24px #000;}
+                    .modal-close {position:absolute;top:30px;right:40px;font-size:40px;color:#fff;cursor:pointer;z-index:10001;}
+                    .modal-download {position:absolute;top:10px;right:10px;padding:0;background:rgba(255,255,255,0.7);border-radius:50%;border:none;opacity:0.85;}
+                    .modal-download:hover {opacity:1;}
+                    .modal-download svg { opacity: 0.7; transition: opacity .2s, filter .2s; }
+                    .modal-download:hover svg { opacity: 1; filter: drop-shadow(0 0 2px #276ef1); }
+                    .modal-download:hover svg path, .modal-download:hover svg rect { stroke: #276ef1 !important; fill: #276ef1 !important; }
+                </style>`;
+                html += '<table class="func-table"><thead><tr>' +
+                    '<th>ID</th><th>Nome</th><th>Sobrenome</th><th>Email</th><th>Cargo</th><th>Departamento</th><th>Foto</th></tr></thead><tbody>';
+                data.forEach((f, idx) => {
+                    html += '<tr>' +
+                        `<td>${f.id_funcionario ?? ''}</td>` +
+                        `<td>${f.nome ?? ''}</td>` +
+                        `<td>${f.sobrenome ?? ''}</td>` +
+                        `<td>${f.email ?? ''}</td>` +
+                        `<td>${f.cargo ?? ''}</td>` +
+                        `<td>${f.nome_departamento ?? ''}</td>` +
+                        `<td>` + (f.foto_base64 ?
+                            `<img src="${f.foto_base64}" alt="Foto" class="func-foto" data-idx="${idx}">`
+                            : '<span style="color:#bbb;font-size:22px;">&#128247;</span>') + `</td>` +
+                        '</tr>';
+                });
+                html += '</tbody></table>';
+                // Modal para visualização
+                html += `<div id="modalFoto" class="modal-bg">
+                    <span class="modal-close" id="closeModal">&times;</span>
+                    <div style="position:relative;display:inline-block;">
+                        <img id="modalImg" class="modal-img" src="" alt="Foto grande">
+                        <button class="modal-download" id="downloadModalBtn" title="Baixar foto" style="position:absolute;top:10px;right:10px;padding:0;background:none;border:none;">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style="opacity:0.7;" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4v12m0 0l-5-5m5 5l5-5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="6" y="20" width="12" height="2" rx="1" fill="#fff"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>`;
+                responseElement.innerHTML = html;
+
+                // Eventos para ampliar foto
+                let fotoAtualBase64 = '';
+                document.querySelectorAll('.func-foto').forEach(img => {
+                    img.addEventListener('click', function() {
+                        const src = this.getAttribute('src');
+                        fotoAtualBase64 = src;
+                        document.getElementById('modalImg').src = src;
+                        document.getElementById('modalFoto').classList.add('active');
+                        document.getElementById('downloadModalBtn').style.display = '';
+                    });
+                });
+                document.getElementById('closeModal').onclick = function() {
+                    document.getElementById('modalFoto').classList.remove('active');
+                    document.getElementById('downloadModalBtn').style.display = 'none';
+                };
+                document.getElementById('modalFoto').onclick = function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.getElementById('downloadModalBtn').style.display = 'none';
+                    }
+                };
+                // Botão de download no modal
+                document.getElementById('downloadModalBtn').onclick = function(e) {
+                    e.stopPropagation();
+                    if (fotoAtualBase64) {
+                        const a = document.createElement('a');
+                        a.href = fotoAtualBase64;
+                        a.download = 'foto_funcionario.jpg';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                };
+            } else if (typeof data === 'object') {
+                responseElement.textContent = JSON.stringify(data, null, 2);
+            } else {
+                responseElement.textContent = data;
+            }
+        }
+
+        // Função para tratar erros
+        function handleError(error, elementId) {
+            console.error('Erro:', error);
+            showResponse(elementId, `Erro: ${error.message}`);
+        }
+
+        // Alternância de abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove classe ativa de todas as abas
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Adiciona classe ativa na aba clicada
+                this.classList.add('active');
+                
+                // Oculta todos os conteúdos
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                // Mostra o conteúdo correspondente à aba clicada
+                document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+            });
+        });
+
+        // Base URL para as requisições à API
+        // URL base para as requisições à API
+        // Ajuste conforme a estrutura do seu servidor
+        const API_BASE_URL = window.location.pathname.includes('Itaipu-intranet') 
+            ? '/Itaipu-intranet/api/funcionarios' 
+            : '/api/funcionarios';
+
+        // Listar todos os funcionários
+        document.getElementById('btnListarFuncionarios').addEventListener('click', function() {
+            fetch(API_BASE_URL)
+                .then(response => response.json())
+                .then(data => showResponse('responseListar', data))
+                .catch(error => handleError(error, 'responseListar'));
+        });
+
+        // Buscar funcionário por ID
+        document.getElementById('btnBuscarFuncionario').addEventListener('click', function() {
+            const id = document.getElementById('idFuncionarioGet').value;
+            if (!id) {
+                alert('Por favor, informe o ID do funcionário');
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/${id}`)
+                .then(response => response.json())
+                .then(data => showResponse('responseBuscar', data))
+                .catch(error => handleError(error, 'responseBuscar'));
+        });
+
+        // Criar novo funcionário
+        document.getElementById('btnCriarFuncionario').addEventListener('click', function() {
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nomeFuncionario').value);
+            formData.append('sobrenome', document.getElementById('sobrenomeFuncionario').value);
+            formData.append('numero_documento', document.getElementById('documentoFuncionario').value);
+            formData.append('email', document.getElementById('emailFuncionario').value);
+            formData.append('cargo', document.getElementById('cargoFuncionario').value);
+            formData.append('data_contratacao', document.getElementById('dataContratacaoFuncionario').value);
+            formData.append('codigo_sistema_interno', document.getElementById('codigoSistemaFuncionario').value);
+            formData.append('id_departamento', document.getElementById('departamentoFuncionario').value);
+            formData.append('id_chefe_direto', document.getElementById('chefeFuncionario').value || '');
+            const fotoInput = document.getElementById('fotoFuncionario');
+            if (fotoInput.files.length > 0) {
+                formData.append('foto', fotoInput.files[0]);
+            }
+            fetch(API_BASE_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => showResponse('responseCriar', data))
+            .catch(error => handleError(error, 'responseCriar'));
+        });
+
+        // Carregar dados de um funcionário para edição
+        document.getElementById('btnCarregarFuncionario').addEventListener('click', function() {
+            const id = document.getElementById('idFuncionarioPut').value;
+            if (!id) {
+                alert('Por favor, informe o ID do funcionário');
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const funcionario = data.data;
+                        document.getElementById('nomeFuncionarioPut').value = funcionario.nome;
+                        document.getElementById('sobrenomeFuncionarioPut').value = funcionario.sobrenome;
+                        document.getElementById('documentoFuncionarioPut').value = funcionario.numero_documento;
+                        document.getElementById('emailFuncionarioPut').value = funcionario.email;
+                        document.getElementById('cargoFuncionarioPut').value = funcionario.cargo;
+                        document.getElementById('dataContratacaoFuncionarioPut').value = funcionario.data_contratacao;
+                        document.getElementById('codigoSistemaFuncionarioPut').value = funcionario.codigo_sistema_interno;
+                        document.getElementById('departamentoFuncionarioPut').value = funcionario.id_departamento;
+                        document.getElementById('chefeFuncionarioPut').value = funcionario.id_chefe_direto || '';
+                    } else {
+                        alert('Funcionário não encontrado');
+                    }
+                })
+                .catch(error => handleError(error, 'responseAtualizar'));
+        });
+
+        // Atualizar funcionário
+        document.getElementById('btnAtualizarFuncionario').addEventListener('click', function() {
+            const id = document.getElementById('idFuncionarioPut').value;
+            if (!id) {
+                alert('Por favor, informe o ID do funcionário');
+                return;
+            }
+
+            const nome = document.getElementById('nomeFuncionarioPut').value;
+            const sobrenome = document.getElementById('sobrenomeFuncionarioPut').value;
+            const numero_documento = document.getElementById('documentoFuncionarioPut').value;
+            const email = document.getElementById('emailFuncionarioPut').value;
+            const cargo = document.getElementById('cargoFuncionarioPut').value;
+            const data_contratacao = document.getElementById('dataContratacaoFuncionarioPut').value;
+            const codigo_sistema_interno = document.getElementById('codigoSistemaFuncionarioPut').value;
+            const id_departamento = document.getElementById('departamentoFuncionarioPut').value;
+            const id_chefe_direto = document.getElementById('chefeFuncionarioPut').value || null;
+            const fotoInput = document.getElementById('fotoFuncionarioPut');
+
+            // Função para limpar o formulário de atualização
+            function limparFormularioAtualizar() {
+                document.getElementById('idFuncionarioPut').value = '';
+                document.getElementById('nomeFuncionarioPut').value = '';
+                document.getElementById('sobrenomeFuncionarioPut').value = '';
+                document.getElementById('documentoFuncionarioPut').value = '';
+                document.getElementById('emailFuncionarioPut').value = '';
+                document.getElementById('cargoFuncionarioPut').value = '';
+                document.getElementById('dataContratacaoFuncionarioPut').value = '';
+                document.getElementById('codigoSistemaFuncionarioPut').value = '';
+                document.getElementById('departamentoFuncionarioPut').value = '';
+                document.getElementById('chefeFuncionarioPut').value = '';
+                document.getElementById('fotoFuncionarioPut').value = '';
+            }
+
+            // Se o usuário selecionou uma foto, usar FormData
+            if (fotoInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('nome', nome);
+                formData.append('sobrenome', sobrenome);
+                formData.append('numero_documento', numero_documento);
+                formData.append('email', email);
+                formData.append('cargo', cargo);
+                formData.append('data_contratacao', data_contratacao);
+                formData.append('codigo_sistema_interno', codigo_sistema_interno);
+                formData.append('id_departamento', id_departamento);
+                formData.append('id_chefe_direto', id_chefe_direto);
+                formData.append('foto', fotoInput.files[0]);
+                fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'POST', // Usar POST + _method=PUT para compatibilidade com PHP
+                    body: formData,
+                    headers: { 'X-HTTP-Method-Override': 'PUT' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showResponse('responseAtualizar', data);
+                    if (data.status === 'success') limparFormularioAtualizar();
+                })
+                .catch(error => handleError(error, 'responseAtualizar'));
+            } else {
+                // Caso contrário, enviar JSON normalmente
+                const data = {
+                    nome,
+                    sobrenome,
+                    numero_documento,
+                    email,
+                    cargo,
+                    data_contratacao,
+                    codigo_sistema_interno,
+                    id_departamento: parseInt(id_departamento),
+                    id_chefe_direto: id_chefe_direto ? parseInt(id_chefe_direto) : null
+                };
+                fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showResponse('responseAtualizar', data);
+                    if (data.status === 'success') limparFormularioAtualizar();
+                })
+                .catch(error => handleError(error, 'responseAtualizar'));
+            }
+        });
+
+        // Excluir funcionário
+        document.getElementById('btnExcluirFuncionario').addEventListener('click', function() {
+            const id = document.getElementById('idFuncionarioDelete').value;
+            if (!id) {
+                alert('Por favor, informe o ID do funcionário');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir o funcionário com ID ${id}?`)) {
+                fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => showResponse('responseExcluir', data))
+                .catch(error => handleError(error, 'responseExcluir'));
+            }
+        });
+    </script>
+</body>
+</html>

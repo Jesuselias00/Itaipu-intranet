@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Simples da API</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 2rem; }
+        button { padding: 10px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        h2 { color: #333; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .card { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+        .request-info { font-size: 12px; color: #666; margin-top: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Teste Simples da API</h1>
+    
+    <div class="card">
+        <h2>Informações da Configuração</h2>
+        <p>URL Base: <span id="baseUrl"></span></p>
+        <p>Método: GET</p>
+    </div>
+    
+    <div class="card">
+        <h2>1. Testar Rota Direta HTML</h2>
+        <button id="btnTestHTML">Testar HTML (index.html)</button>
+        <div class="request-info" id="requestInfoHTML"></div>
+        <pre id="outputTestHTML"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>2. Testar Rota de Teste Simples</h2>
+        <button id="btnTestRouter">Testar Router</button>
+        <div class="request-info" id="requestInfoRouter"></div>
+        <pre id="outputTestRouter"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>3. Listar Funcionários</h2>
+        <button id="btnListFuncionarios">Listar Funcionários</button>
+        <div class="request-info" id="requestInfoList"></div>
+        <pre id="outputListFuncionarios"></pre>
+    </div>
+      <div class="card">
+        <h2>4. Testar Rota PHP Simples</h2>
+        <button id="btnTestPhp">Testar PHP (test_api.php)</button>
+        <div class="request-info" id="requestInfoPhp"></div>
+        <pre id="outputTestPhp"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>5. Testar JSON Direto</h2>
+        <button id="btnTestJson">Testar JSON (test_json.php)</button>
+        <div class="request-info" id="requestInfoJson"></div>
+        <pre id="outputTestJson"></pre>
+    </div>
+    
+    <script>
+        // Detecta o caminho base da aplicação
+        const urlPath = window.location.pathname;
+        const basePath = urlPath.includes('Itaipu-intranet') 
+            ? '/Itaipu-intranet' 
+            : '';
+        
+        // Mostra o caminho base
+        document.getElementById('baseUrl').textContent = basePath || '/';
+            
+        // Função para mostrar resposta
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            if (isError) {
+                element.classList.add('error');
+            } else {
+                element.classList.remove('error');
+            }
+            
+            element.textContent = typeof data === 'object' 
+                ? JSON.stringify(data, null, 2) 
+                : data;
+        }
+        
+        // Função para mostrar informações da requisição
+        function showRequestInfo(elementId, url, status, statusText) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toISOString();
+            element.innerHTML = `<strong>URL:</strong> ${url} | <strong>Status:</strong> ${status} ${statusText} | <strong>Hora:</strong> ${timestamp}`;
+            if (status >= 200 && status < 300) {
+                element.classList.add('success');
+                element.classList.remove('error');
+            } else {
+                element.classList.add('error');
+                element.classList.remove('success');
+            }
+        }
+        
+        // Função genérica para fazer requisição
+        async function makeRequest(url, infoElementId, outputElementId) {
+            try {
+                showResponse(outputElementId, 'Carregando...');
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+                
+                showRequestInfo(infoElementId, url, response.status, response.statusText);
+                
+                try {
+                    const data = await response.json();
+                    showResponse(outputElementId, data);
+                } catch (jsonError) {
+                    const text = await response.text();
+                    showResponse(outputElementId, `ERRO DE PARSE JSON: ${jsonError.message}\n\nRESPOSTA BRUTA:\n${text}`, true);
+                }
+            } catch (error) {
+                showRequestInfo(infoElementId, url, 0, 'Falha na requisição');
+                showResponse(outputElementId, `ERRO: ${error.message}`, true);
+            }
+        }
+        
+        // Testar HTML direto
+        document.getElementById('btnTestHTML').addEventListener('click', function() {
+            makeRequest(`${basePath}/`, 'requestInfoHTML', 'outputTestHTML');
+        });
+        
+        // Testa a rota de teste do roteador
+        document.getElementById('btnTestRouter').addEventListener('click', function() {
+            makeRequest(`${basePath}/api/test-router`, 'requestInfoRouter', 'outputTestRouter');
+        });
+        
+        // Lista todos os funcionários
+        document.getElementById('btnListFuncionarios').addEventListener('click', function() {
+            makeRequest(`${basePath}/api/funcionarios`, 'requestInfoList', 'outputListFuncionarios');
+        });
+          // Testa PHP direto
+        document.getElementById('btnTestPhp').addEventListener('click', function() {
+            makeRequest(`${basePath}/test_api.php`, 'requestInfoPhp', 'outputTestPhp');
+        });
+        
+        // Testa JSON direto
+        document.getElementById('btnTestJson').addEventListener('click', function() {
+            makeRequest(`${basePath}/test_json.php`, 'requestInfoJson', 'outputTestJson');
+        });
+    </script>
+</body>
+</html>

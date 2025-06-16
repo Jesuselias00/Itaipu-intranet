@@ -1,9 +1,9 @@
-# Redireciona todas as requisições para index.php, exceto arquivos e pastas reais
+# Habilitar el motor de reescritura
 RewriteEngine On
 
-# Se o arquivo ou diretório solicitado existir, não faz nada
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Permitir acceso directo a archivos existentes (incluyendo .php y .html)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
 
-# Redireciona tudo para index.php
+# Redirigir todo lo demás a index.php
 RewriteRule ^ index.php [QSA,L]

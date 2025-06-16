@@ -1,1 +1,45 @@
+# Configuración sensible
 /app/config/database.php
+
+# Logs
+*.log
+app/core/router_debug.log
+
+# Node modules
+node_modules/
+*/node_modules/
+
+# Archivos de dependencias
+material-dashboard-react/node_modules/
+material-dashboard-react/package-lock.json
+
+# Logs de npm/yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables de entorno
+.env
+.env.test
+
+# Archivos del sistema
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Cache
+.cache
+.parcel-cache
+
+# Build output
+dist/
+build/
