@@ -1,27 +1,24 @@
-# Sistema de Gestión de Funcionarios - Itaipu Intranet
+# Sistema de Gestión de Funcionarios - Backend PHP
 
-Sistema completo para la gestión de funcionarios con backend PHP y frontend React profesional.
+API RESTful completa para la gestión de funcionarios desarrollada en PHP.
 
 ## 🚀 Características
 
-- **Backend PHP RESTful**: API completa con CRUD para funcionarios
-- **Frontend React Moderno**: Interfaz profesional usando Material Dashboard React
+- **API RESTful Completa**: CRUD completo para funcionarios
 - **Gestión de Fotos**: Subida y almacenamiento de imágenes en base de datos
-- **Validaciones**: Validación de datos tanto en frontend como backend
-- **Interfaz Responsive**: Diseño adaptable para todos los dispositivos
-- **Tabla Moderna**: Visualización profesional con avatares, estados y acciones
+- **Validaciones**: Validación de datos robusta
+- **Estructura MVC**: Arquitectura organizada y escalable
+- **Base de Datos MySQL**: Esquema optimizado
+- **Interfaz de Pruebas**: HTML simple para testing de la API
 
 ## 📋 Requisitos del Sistema
 
 - PHP 7.4 o superior
 - MySQL 5.7 o superior
+- Apache con mod_rewrite habilitado
 - XAMPP/WAMP/LAMP (recomendado)
-- Node.js 16 o superior
-- npm o yarn
 
 ## 🛠️ Instalación
-
-### Backend (PHP)
 
 1. Clona el repositorio:
 ```bash
@@ -38,23 +35,6 @@ cd Itaipu-intranet
    - Coloca el proyecto en tu directorio web (ej: `htdocs` para XAMPP)
    - Asegúrate de que el módulo de reescritura esté habilitado
 
-### Frontend (React)
-
-1. Navega al directorio del frontend:
-```bash
-cd material-dashboard-react
-```
-
-2. Instala las dependencias:
-```bash
-npm install
-```
-
-3. Inicia el servidor de desarrollo:
-```bash
-npm start
-```
-
 ## 📂 Estructura del Proyecto
 
 ```
@@ -64,24 +44,22 @@ Itaipu-intranet/
 │   ├── config/
 │   │   └── database.php           # Configuración de BD
 │   ├── controllers/
-│   │   └── FuncionarioController.php
+│   │   ├── FuncionarioController.php
+│   │   └── CrachaController.php
 │   ├── core/
-│   │   ├── Database.php
-│   │   └── Router.php
+│   │   ├── Database.php           # Clase de conexión a BD
+│   │   └── Router.php             # Enrutador de la API
 │   └── models/
-│       └── Funcionario.php
-├── material-dashboard-react/
-│   ├── src/
-│   │   ├── api/
-│   │   │   └── funcionarios.js    # Servicios API
-│   │   ├── components/
-│   │   ├── pages/
-│   │   │   └── FuncionariosPage.js
-│   │   └── FuncionariosTable.js   # Tabla principal
-│   └── package.json
+│       ├── Funcionario.php
+│       ├── Departamento.php
+│       ├── Cracha.php
+│       └── MotivoCracha.php
 ├── public/
 │   ├── index.php                  # Punto de entrada web
-│   └── api_test.html             # Interfaz de pruebas
+│   ├── api_test.html             # Interfaz de pruebas
+│   └── assets/
+│       └── img/
+│           └── funcionarios/      # Imágenes de funcionarios
 └── sql/
     ├── schema.sql                 # Estructura de BD
     └── dummy_data.sql            # Datos de prueba
@@ -99,29 +77,27 @@ Itaipu-intranet/
 
 ### Ejemplo de uso:
 
-```javascript
-// Listar funcionarios
-fetch('http://localhost/Itaipu-intranet/app/api.php/funcionarios')
-  .then(response => response.json())
-  .then(data => console.log(data));
+```bash
+# Listar funcionarios
+curl -X GET http://localhost/Itaipu-intranet/app/api.php/funcionarios
+
+# Crear funcionario
+curl -X POST http://localhost/Itaipu-intranet/app/api.php/funcionarios \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Juan","sobrenome":"Pérez","email":"juan@email.com"}'
+
+# Actualizar funcionario
+curl -X PUT http://localhost/Itaipu-intranet/app/api.php/funcionarios/1 \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Juan Carlos","cargo":"Desarrollador"}'
+
+# Eliminar funcionario
+curl -X DELETE http://localhost/Itaipu-intranet/app/api.php/funcionarios/1
 ```
 
-## 🎨 Frontend
+## 🧪 Testing
 
-El frontend está desarrollado con:
-
-- **React 18**: Biblioteca principal
-- **Material-UI**: Components de interfaz
-- **Material Dashboard**: Template profesional
-- **Responsive Design**: Adaptable a todos los dispositivos
-
-### Características del Frontend:
-
-- Tabla moderna con paginación
-- Avatares para fotos de funcionarios
-- Estados visuales (Online/Offline)
-- Botones de acción (Editar/Eliminar)
-- Diseño profesional y moderno
+Usa `public/api_test.html` para probar los endpoints de la API desde una interfaz web simple.
 
 ## 📝 Base de Datos
 
@@ -145,34 +121,20 @@ CREATE TABLE funcionarios (
 );
 ```
 
-## 🧪 Testing
-
-### Backend
-Usa `public/api_test.html` para probar los endpoints de la API.
-
-### Frontend
-```bash
-cd material-dashboard-react
-npm test
-```
-
 ## 🚀 Despliegue
 
 ### Producción
 
-1. **Backend**: Sube los archivos PHP a tu servidor web
-2. **Frontend**: 
-   ```bash
-   npm run build
-   ```
-   Sube el contenido de `build/` a tu servidor web
+1. Sube los archivos PHP a tu servidor web
+2. Configura la base de datos en el servidor
+3. Asegúrate de que los permisos de escritura estén configurados para la carpeta de imágenes
 
 ### Variables de Entorno
 
 Configura las siguientes variables para producción:
 - Base de datos (host, usuario, contraseña)
-- URLs de API
 - Configuraciones de seguridad
+- Permisos de carpetas
 
 ## 🤝 Contribución
 
@@ -197,11 +159,12 @@ Si encuentras algún problema o tienes preguntas:
 ## 📊 Estado del Proyecto
 
 - ✅ Backend API completa
-- ✅ Frontend React integrado
+- ✅ Sistema CRUD de funcionarios
 - ✅ Gestión de fotos
-- ✅ Validaciones
-- ⏳ Funcionalidades de edición (en desarrollo)
+- ✅ Validaciones de datos
+- ✅ Interfaz de pruebas
 - ⏳ Sistema de autenticación (planeado)
+- ⏳ Roles y permisos (planeado)
 - ⏳ Reportes y exportación (planeado)
 
 ---
