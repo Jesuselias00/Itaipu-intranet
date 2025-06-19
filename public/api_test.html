@@ -500,83 +500,39 @@
                 return;
             }
 
-            const nome = document.getElementById('nomeFuncionarioPut').value;
-            const sobrenome = document.getElementById('sobrenomeFuncionarioPut').value;
-            const numero_documento = document.getElementById('documentoFuncionarioPut').value;
-            const email = document.getElementById('emailFuncionarioPut').value;
-            const cargo = document.getElementById('cargoFuncionarioPut').value;
-            const data_contratacao = document.getElementById('dataContratacaoFuncionarioPut').value;
-            const codigo_sistema_interno = document.getElementById('codigoSistemaFuncionarioPut').value;
-            const id_departamento = document.getElementById('departamentoFuncionarioPut').value;
-            const id_chefe_direto = document.getElementById('chefeFuncionarioPut').value || null;
-            const fotoInput = document.getElementById('fotoFuncionarioPut');
-
-            // Função para limpar o formulário de atualização
-            function limparFormularioAtualizar() {
-                document.getElementById('idFuncionarioPut').value = '';
-                document.getElementById('nomeFuncionarioPut').value = '';
-                document.getElementById('sobrenomeFuncionarioPut').value = '';
-                document.getElementById('documentoFuncionarioPut').value = '';
-                document.getElementById('emailFuncionarioPut').value = '';
-                document.getElementById('cargoFuncionarioPut').value = '';
-                document.getElementById('dataContratacaoFuncionarioPut').value = '';
-                document.getElementById('codigoSistemaFuncionarioPut').value = '';
-                document.getElementById('departamentoFuncionarioPut').value = '';
-                document.getElementById('chefeFuncionarioPut').value = '';
-                document.getElementById('fotoFuncionarioPut').value = '';
-            }
-
-            // Se o usuário selecionou uma foto, usar FormData
-            if (fotoInput.files.length > 0) {
-                const formData = new FormData();
-                formData.append('nome', nome);
-                formData.append('sobrenome', sobrenome);
-                formData.append('numero_documento', numero_documento);
-                formData.append('email', email);
-                formData.append('cargo', cargo);
-                formData.append('data_contratacao', data_contratacao);
-                formData.append('codigo_sistema_interno', codigo_sistema_interno);
-                formData.append('id_departamento', id_departamento);
-                formData.append('id_chefe_direto', id_chefe_direto);
-                formData.append('foto', fotoInput.files[0]);
-                fetch(`${API_BASE_URL}/${id}`, {
-                    method: 'POST', // Usar POST + _method=PUT para compatibilidade com PHP
-                    body: formData,
-                    headers: { 'X-HTTP-Method-Override': 'PUT' }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    showResponse('responseAtualizar', data);
-                    if (data.status === 'success') limparFormularioAtualizar();
-                })
-                .catch(error => handleError(error, 'responseAtualizar'));
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nomeFuncionarioPut').value);
+            formData.append('sobrenome', document.getElementById('sobrenomeFuncionarioPut').value);
+            formData.append('numero_documento', document.getElementById('documentoFuncionarioPut').value);
+            formData.append('email', document.getElementById('emailFuncionarioPut').value);
+            formData.append('cargo', document.getElementById('cargoFuncionarioPut').value);
+            formData.append('data_contratacao', document.getElementById('dataContratacaoFuncionarioPut').value);
+            formData.append('codigo_sistema_interno', document.getElementById('codigoSistemaFuncionarioPut').value);
+            formData.append('id_departamento', document.getElementById('departamentoFuncionarioPut').value);
+            
+            const idChefe = document.getElementById('chefeFuncionarioPut').value;
+            if (idChefe) {
+                formData.append('id_chefe_direto', idChefe);
             } else {
-                // Caso contrário, enviar JSON normalmente
-                const data = {
-                    nome,
-                    sobrenome,
-                    numero_documento,
-                    email,
-                    cargo,
-                    data_contratacao,
-                    codigo_sistema_interno,
-                    id_departamento: parseInt(id_departamento),
-                    id_chefe_direto: id_chefe_direto ? parseInt(id_chefe_direto) : null
-                };
-                fetch(`${API_BASE_URL}/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    showResponse('responseAtualizar', data);
-                    if (data.status === 'success') limparFormularioAtualizar();
-                })
-                .catch(error => handleError(error, 'responseAtualizar'));
+                formData.append('id_chefe_direto', ''); // Enviar vacío se não for fornecido para evitar string "null"
             }
+
+            const fotoInput = document.getElementById('fotoFuncionarioPut');
+            if (fotoInput.files.length > 0) {
+                formData.append('foto', fotoInput.files[0]);
+            }
+
+            // Para simular PUT com FormData, usamos POST e um campo _method
+            formData.append('_method', 'PUT'); 
+
+            fetch(`${API_BASE_URL}/${id}`, {
+                method: 'POST', // Usar POST em vez de PUT para enviar FormData de forma consistente
+                body: formData 
+                // Não definir Content-Type manualmente, o navegador fará isso para FormData
+            })
+            .then(response => response.json())
+            .then(data => showResponse('responseAtualizar', data))
+            .catch(error => handleError(error, 'responseAtualizar'));
         });
 
         // Excluir funcionário

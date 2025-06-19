@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de API - Funcionários</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        pre { background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow: auto; }
+        button { padding: 10px 15px; background: #4CAF50; color: white; border: none; cursor: pointer; margin: 10px 0; }
+        #resultado { border: 1px solid #ddd; padding: 10px; margin-top: 20px; }
+        .success { color: #4CAF50; font-weight: bold; }
+        .error { color: #f44336; font-weight: bold; }
+        .url-test { margin-bottom: 10px; padding: 5px; border-left: 3px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Teste de API - Funcionários</h1>
+    
+    <button id="testarAPI">Testar API de Funcionários</button>
+    
+    <div id="resultado">
+        <p>Clique no botão acima para testar a API.</p>
+    </div>
+
+    <script>
+        document.getElementById('testarAPI').addEventListener('click', async function() {
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = '<p>Carregando dados da API...</p>';
+            
+            // Determinando URL base basado en la ubicación actual
+            let baseUrl = '';
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                // Para desarrollo local
+                baseUrl = window.location.pathname.includes('Itaipu-intranet') ? 
+                    '/Itaipu-intranet' : '';
+            }
+            
+            // Array de URLs para probar
+            const urlsToTest = [
+                `${baseUrl}/app/api.php/funcionarios`,
+                `${baseUrl}/app/api.php/test-router`,
+                `${baseUrl}/api/funcionarios`,
+                `${baseUrl}/api.php/funcionarios`
+            ];
+            
+            let success = false;
+            let lastError = null;
+            
+            resultadoDiv.innerHTML = '<p>Tentando múltiplas URLs da API...</p>';
+            
+            // Probar todas las URLs posibles
+            for (const url of urlsToTest) {
+                try {
+                    console.log(`Tentando URL: ${url}`);
+                    const urlDiv = document.createElement('div');
+                    urlDiv.className = 'url-test';
+                    urlDiv.innerHTML = `<p>Testando: ${url}...</p>`;
+                    resultadoDiv.appendChild(urlDiv);
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        urlDiv.innerHTML += `<p class="error">Erro HTTP: ${response.status} ${response.statusText}</p>`;
+                        throw new Error(`Erro HTTP: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.log(`Resposta não-JSON de ${url}:`, text.substring(0, 300));
+                        urlDiv.innerHTML += `<p class="error">API não retornou JSON: ${contentType}</p>
+                                            <pre>${text.substring(0, 300)}...</pre>`;
+                        throw new Error(`API não retornou JSON: ${contentType}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log(`Resposta da API (${url}):`, data);
+                    
+                    urlDiv.innerHTML += `
+                        <p class="success">✓ Conexão bem-sucedida!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    success = true;
+                    // Continuamos testando outras URLs
+                    
+                } catch (error) {
+                    console.error(`Erro com URL ${url}:`, error);
+                    lastError = error;
+                }
+            }
+            
+            if (!success) {
+                resultadoDiv.innerHTML += `
+                    <div>
+                        <p class="error">⚠️ Todas as tentativas falharam!</p>
+                        <p>Último erro: ${lastError?.message || 'Desconhecido'}</p>
+                        <h3>Dicas para solução:</h3>
+                        <ol>
+                            <li>Verifique se o servidor PHP está em execução</li>
+                            <li>Verifique se o arquivo api.php tem permissões corretas</li>
+                            <li>Verifique os logs do PHP para erros</li>
+                            <li>Verifique se o banco de dados está conectado corretamente</li>
+                            <li>Tente acessar diretamente a URL no navegador</li>
+                        </ol>
+                    </div>
+                `;
+            } else {
+                resultadoDiv.innerHTML += `
+                    <div>
+                        <p class="success">✓ Pelo menos uma das URLs funcionou!</p>
+                        <p>Use a URL bem-sucedida para continuar o desenvolvimento.</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

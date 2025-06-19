@@ -1,0 +1,10 @@
+# .htaccess para redirecionamento de API
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /Itaipu-intranet/app/
+    
+    # Se o arquivo solicitado não existir, direcione para api.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ api.php/$1 [QSA,L]
+</IfModule>

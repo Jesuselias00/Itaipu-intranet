@@ -34,33 +34,26 @@ class FuncionarioController {
 
     public function index() {
         try {
-            // Registrar chamada ao método
-            file_put_contents(__DIR__ . '/../core/router_debug.log', 
-                date('c') . " | FuncionarioController::index | Método chamado\n", FILE_APPEND);
-            
-            // Garantir cabeçalho JSON
+            file_put_contents(__DIR__ . '/../core/router_debug.log',
+                date('c') . " | FuncionarioController::index | INICIO\n", FILE_APPEND);
             header('Content-Type: application/json');
-            
-            // Obter funcionários
+
+            file_put_contents(__DIR__ . '/../core/router_debug.log',
+                date('c') . " | FuncionarioController::index | Antes de getAll\n", FILE_APPEND);
             $funcionarios = $this->funcionarioModel->getAll();
-            
-            // Registrar sucesso
-            file_put_contents(__DIR__ . '/../core/router_debug.log', 
-                date('c') . " | FuncionarioController::index | Sucesso: " . count($funcionarios) . " funcionários encontrados\n", FILE_APPEND);
-            
+            file_put_contents(__DIR__ . '/../core/router_debug.log',
+                date('c') . " | FuncionarioController::index | Después de getAll\n", FILE_APPEND);
+
             echo json_encode(['status' => 'success', 'data' => $funcionarios]);
-            
+            file_put_contents(__DIR__ . '/../core/router_debug.log',
+                date('c') . " | FuncionarioController::index | FIN OK\n", FILE_APPEND);
         } catch (Exception $e) {
-            // Registrar erro
-            file_put_contents(__DIR__ . '/../core/router_debug.log', 
-                date('c') . " | FuncionarioController::index | ERRO: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString() . "\n", FILE_APPEND);
-            
-            // Garantir cabeçalho JSON e código de status
+            file_put_contents(__DIR__ . '/../core/router_debug.log',
+                date('c') . " | FuncionarioController::index | ERROR: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString() . "\n", FILE_APPEND);
             header('Content-Type: application/json');
             http_response_code(500);
-            
             echo json_encode([
-                'status' => 'error', 
+                'status' => 'error',
                 'message' => 'Não foi possível listar funcionários: ' . $e->getMessage()
             ]);
         }
@@ -68,92 +61,68 @@ class FuncionarioController {
     
     // Nuevo método para criar um funcionário
     public function store() {
-        // Si la petición es multipart/form-data, usar $_POST y $_FILES
-        if (isset($_FILES['foto'])) {
-            $data = (object)$_POST;
+        // Detectar si es multipart/form-data o JSON
+        $isMultipart = (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false);
+        if ($isMultipart) {
+            $data = $_POST;
         } else {
-            $data = json_decode(file_get_contents("php://input"));
+            $data = json_decode(file_get_contents("php://input"), true);
         }
-
-        // Validar se os dados necessários estão presentes
-        if (
-            !isset($data->nome) ||
-            !isset($data->sobrenome) ||
-            !isset($data->numero_documento) ||
-            !isset($data->email) ||
-            !isset($data->cargo) ||
-            !isset($data->data_contratacao) ||
-            !isset($data->codigo_sistema_interno) ||
-            !isset($data->id_departamento)
-        ) {
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'error', 'message' => 'Dados incompletos para criar funcionário. Todos os campos obrigatórios devem ser fornecidos.']);
-            return;
+        // Validar dados requeridos
+        $required = ['nome','sobrenome','numero_documento','email','cargo','data_contratacao','codigo_sistema_interno','id_departamento'];
+        foreach ($required as $field) {
+            if (!isset($data[$field]) || $data[$field] === '') {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => "Campo obrigatório ausente: $field"]);
+                return;
+            }
         }
-
-        // Validar formato do email
-        if (!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Formato de email inválido']);
             return;
         }
-
-        // Validar comprimento dos campos
-        if (strlen($data->nome) > 50 || strlen($data->sobrenome) > 50) {
+        if (strlen($data['nome']) > 50 || strlen($data['sobrenome']) > 50) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Nome ou sobrenome muito longos (máximo 50 caracteres)']);
             return;
         }
-        if (strlen($data->numero_documento) > 20) {
+        if (strlen($data['numero_documento']) > 20) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Número de documento muito longo (máximo 20 caracteres)']);
             return;
         }
-
-        // Verificar se já existe um funcionário com esse número de documento
-        if ($this->funcionarioModel->usuarioExistente($data->numero_documento)) {
-            http_response_code(409); // Código 409 Conflict
+        if ($this->funcionarioModel->usuarioExistente($data['numero_documento'])) {
+            http_response_code(409);
             echo json_encode(['status' => 'error', 'message' => 'Já existe um funcionário com esse número de documento.']);
             return;
         }
-
         // Procesar la foto si existe
-        $fotoPath = null;
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../public/assets/img/funcionarios/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-            $fileName = uniqid('funcionario_') . '.' . $ext;
-            $destPath = $uploadDir . $fileName;
-            if (move_uploaded_file($_FILES['foto']['tmp_name'], $destPath)) {
-                $fotoPath = 'assets/img/funcionarios/' . $fileName;
-            }
+        $fotoBin = null;
+        if ($isMultipart && isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $fotoBin = file_get_contents($_FILES['foto']['tmp_name']);
         }
-
-        // Atribuir os dados recebidos às propriedades do modelo antes de criar
-        $this->funcionarioModel->nome = mb_strtoupper($data->nome, 'UTF-8');
-        $this->funcionarioModel->sobrenome = mb_strtoupper($data->sobrenome, 'UTF-8');
-        $this->funcionarioModel->numero_documento = $data->numero_documento;
-        $this->funcionarioModel->email = $data->email;
-        $this->funcionarioModel->cargo = $data->cargo;
-        $this->funcionarioModel->data_contratacao = $data->data_contratacao;
-        $this->funcionarioModel->codigo_sistema_interno = $data->codigo_sistema_interno;
-        $this->funcionarioModel->id_departamento = $data->id_departamento;
-        $this->funcionarioModel->id_chefe_direto = isset($data->id_chefe_direto) ? $data->id_chefe_direto : null; // Pode ser nulo
-        $this->funcionarioModel->foto = $fotoPath;
-
+        // Asignar valores al modelo
+        $this->funcionarioModel->nome = mb_strtoupper($data['nome'], 'UTF-8');
+        $this->funcionarioModel->sobrenome = mb_strtoupper($data['sobrenome'], 'UTF-8');
+        $this->funcionarioModel->numero_documento = $data['numero_documento'];
+        $this->funcionarioModel->email = $data['email'];
+        $this->funcionarioModel->cargo = $data['cargo'];
+        $this->funcionarioModel->data_contratacao = $data['data_contratacao'];
+        $this->funcionarioModel->data_nascimento = isset($data['data_nascimento']) ? $data['data_nascimento'] : null;
+        $this->funcionarioModel->codigo_sistema_interno = $data['codigo_sistema_interno'];
+        $this->funcionarioModel->id_departamento = $data['id_departamento'];
+        $this->funcionarioModel->id_chefe_direto = isset($data['id_chefe_direto']) && $data['id_chefe_direto'] !== '' ? $data['id_chefe_direto'] : null;
+        $this->funcionarioModel->foto = $fotoBin;
         try {
             if ($this->funcionarioModel->create()) {
-                http_response_code(201); // Created
-                echo json_encode(['status' => 'success', 'message' => 'Funcionário criado com sucesso.']);
+                echo json_encode(['status' => 'success', 'message' => 'Funcionário criado com sucesso']);
             } else {
-                http_response_code(503); // Service Unavailable
-                echo json_encode(['status' => 'error', 'message' => 'Não foi possível criar funcionário.']);
+                http_response_code(503);
+                echo json_encode(['status' => 'error', 'message' => 'Não foi possível criar funcionário']);
             }
         } catch (Exception $e) {
-            http_response_code(500); // Internal Server Error
+            http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => 'Erro ao criar funcionário: ' . $e->getMessage()]);
         }
     }
@@ -190,94 +159,94 @@ class FuncionarioController {
     
     // Método para atualizar um funcionário existente
     public function update($id = null) {
-        if ($id === null && isset($_GET['id'])) {
-            $id = $_GET['id'];
-        }
+        // Obter ID da URL
         if (!$id) {
             http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'ID do funcionário não fornecido']);
+            echo json_encode(['status' => 'error', 'message' => 'ID do funcionário não fornecido.']);
             return;
         }
+
+        // Encontrar registro existente
         $funcionario = $this->funcionarioModel->findById($id);
         if (!$funcionario) {
             http_response_code(404);
-            echo json_encode(['status' => 'error', 'message' => 'Funcionário não encontrado']);
+            echo json_encode(['status' => 'error', 'message' => 'Funcionário não encontrado.']);
             return;
         }
 
-        // Suporte a JSON e multipart/form-data
-        $isMultipart = strpos($_SERVER['CONTENT_TYPE'] ?? '', 'multipart/form-data') !== false;
+        // Obter dados da requisição de forma robusta
+        $isMultipart = isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false;
+        $data = [];
         if ($isMultipart) {
             $data = $_POST;
         } else {
-            $data = json_decode(file_get_contents("php://input"), true);
+            $input = file_get_contents("php://input");
+            if ($input) {
+                $data = json_decode($input, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                     http_response_code(400);
+                     echo json_encode(['status' => 'error', 'message' => 'Corpo da requisição inválido. Esperado JSON ou multipart/form-data.']);
+                     return;
+                }
+            }
         }
-        if (!$data) {
+
+        if (empty($data)) {
             http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Nenhum dado fornecido para atualização']);
+            echo json_encode(['status' => 'error', 'message' => 'Nenhum dado fornecido para atualização. Verifique o formulário.']);
             return;
         }
-        // Validações (email, comprimento, documento único)
+
+        // Validações específicas
         if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Formato de email inválido']);
-            return;
-        }
-        if ((isset($data['nome']) && strlen($data['nome']) > 50) || (isset($data['sobrenome']) && strlen($data['sobrenome']) > 50)) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Nome ou sobrenome muito longos (máximo 50 caracteres)']);
-            return;
-        }
-        if (isset($data['numero_documento']) && strlen($data['numero_documento']) > 20) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Número de documento muito longo (máximo 20 caracteres)']);
+            echo json_encode(['status' => 'error', 'message' => 'Formato de email inválido.']);
             return;
         }
         if (isset($data['numero_documento']) && $data['numero_documento'] !== $funcionario['numero_documento'] && $this->funcionarioModel->usuarioExistente($data['numero_documento'])) {
-            http_response_code(409);
-            echo json_encode(['status' => 'error', 'message' => 'Já existe um funcionário com esse número de documento']);
+            http_response_code(409); // Conflito
+            echo json_encode(['status' => 'error', 'message' => 'Já existe um funcionário com esse número de documento.']);
             return;
         }
+
+        // Atribuir ao modelo, mantendo valores antigos se os novos não vierem
         $this->funcionarioModel->id_funcionario = $id;
         $this->funcionarioModel->nome = isset($data['nome']) ? mb_strtoupper($data['nome'], 'UTF-8') : $funcionario['nome'];
         $this->funcionarioModel->sobrenome = isset($data['sobrenome']) ? mb_strtoupper($data['sobrenome'], 'UTF-8') : $funcionario['sobrenome'];
-        $this->funcionarioModel->numero_documento = isset($data['numero_documento']) ? $data['numero_documento'] : $funcionario['numero_documento'];
-        $this->funcionarioModel->email = isset($data['email']) ? $data['email'] : $funcionario['email'];
-        $this->funcionarioModel->cargo = isset($data['cargo']) ? $data['cargo'] : $funcionario['cargo'];
-        $this->funcionarioModel->data_contratacao = isset($data['data_contratacao']) ? $data['data_contratacao'] : $funcionario['data_contratacao'];
-        $this->funcionarioModel->codigo_sistema_interno = isset($data['codigo_sistema_interno']) ? $data['codigo_sistema_interno'] : $funcionario['codigo_sistema_interno'];
-        $this->funcionarioModel->id_departamento = isset($data['id_departamento']) ? $data['id_departamento'] : $funcionario['id_departamento'];
-        $this->funcionarioModel->id_chefe_direto = (isset($data['id_chefe_direto']) && $data['id_chefe_direto'] !== '') ? $data['id_chefe_direto'] : null;
+        $this->funcionarioModel->numero_documento = $data['numero_documento'] ?? $funcionario['numero_documento'];
+        $this->funcionarioModel->email = $data['email'] ?? $funcionario['email'];
+        $this->funcionarioModel->cargo = $data['cargo'] ?? $funcionario['cargo'];
+        $this->funcionarioModel->data_contratacao = $data['data_contratacao'] ?? $funcionario['data_contratacao'];
+        $this->funcionarioModel->data_nascimento = $data['data_nascimento'] ?? $funcionario['data_nascimento'];
+        $this->funcionarioModel->codigo_sistema_interno = $data['codigo_sistema_interno'] ?? $funcionario['codigo_sistema_interno'];
+        $this->funcionarioModel->id_departamento = $data['id_departamento'] ?? $funcionario['id_departamento'];
+        $this->funcionarioModel->id_chefe_direto = (isset($data['id_chefe_direto']) && $data['id_chefe_direto'] !== '') ? $data['id_chefe_direto'] : $funcionario['id_chefe_direto'];
 
-        // Lógica para atualizar foto
-        $fotoPath = $funcionario['foto'] ?? null;
+        // Manter foto antiga por padrão, e atualizar se uma nova for enviada
+        $fotoBin = $funcionario['foto'];
+
+        // Se uma nova foto for enviada, ela tem prioridade
         if ($isMultipart && isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $fotoTmp = $_FILES['foto']['tmp_name'];
-            $fotoName = uniqid('funcionario_') . '_' . basename($_FILES['foto']['name']);
-            $destDir = __DIR__ . '/../../public/assets/img/funcionarios/';
-            if (!is_dir($destDir)) {
-                mkdir($destDir, 0777, true);
-            }
-            $destPath = $destDir . $fotoName;
-            if (move_uploaded_file($fotoTmp, $destPath)) {
-                // Eliminar foto anterior si existe y es diferente
-                if ($fotoPath && file_exists(__DIR__ . '/../../public/' . $fotoPath)) {
-                    @unlink(__DIR__ . '/../../public/' . $fotoPath);
-                }
-                $fotoPath = 'assets/img/funcionarios/' . $fotoName;
-            }
+            $fotoBin = file_get_contents($_FILES['foto']['tmp_name']);
+        } 
+        // Senão, verificar se a foto deve ser removida (o campo remove_foto foi enviado como '1')
+        else if ($isMultipart && isset($data['remove_foto']) && $data['remove_foto'] == '1') {
+            $fotoBin = null;
         }
-        $this->funcionarioModel->foto = $fotoPath;
+        
+        $this->funcionarioModel->foto = $fotoBin;
+
+        // Executar a atualização
         try {
             if ($this->funcionarioModel->update()) {
                 echo json_encode(['status' => 'success', 'message' => 'Funcionário atualizado com sucesso']);
             } else {
                 http_response_code(503);
-                echo json_encode(['status' => 'error', 'message' => 'Não foi possível atualizar funcionário']);
+                echo json_encode(['status' => 'error', 'message' => 'Não foi possível atualizar o funcionário no banco de dados.']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['status' => 'error', 'message' => 'Erro ao atualizar funcionário: ' . $e->getMessage()]);
+            echo json_encode(['status' => 'error', 'message' => 'Erro no servidor ao atualizar funcionário: ' . $e->getMessage()]);
         }
     }
     

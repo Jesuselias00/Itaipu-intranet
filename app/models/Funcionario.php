@@ -4,8 +4,7 @@
 class Funcionario {
     private $conn;
     private $table_name = "funcionarios";
-    
-    // Propriedades que correspondem às colunas na tabela
+      // Propriedades que correspondem às colunas na tabela
     public $id_funcionario;
     public $nome;
     public $sobrenome;
@@ -13,6 +12,7 @@ class Funcionario {
     public $email;
     public $cargo;
     public $data_contratacao;
+    public $data_nascimento; // Nova propriedade para a data de nascimento
     public $codigo_sistema_interno;
     public $id_departamento;
     public $id_chefe_direto;
@@ -20,10 +20,9 @@ class Funcionario {
 
     public function __construct($db) {
         $this->conn = $db;
-    }
-
-    public function getAll() {
-        $query = "SELECT
+    }    public function getAll() {
+        try {
+            $query = "SELECT
                     f.id_funcionario,
                     f.nome,
                     f.sobrenome,
@@ -31,64 +30,86 @@ class Funcionario {
                     f.email,
                     f.cargo,
                     f.data_contratacao,
+                    f.data_nascimento,
                     f.codigo_sistema_interno,
+                    f.id_departamento,
+                    f.id_chefe_direto,
+                    f.data_criacao_registro,
+                    f.ultima_modificacao_registro,
                     d.nome_departamento,
                     chefe.nome AS nome_chefe,
                     chefe.sobrenome AS sobrenome_chefe,
                     f.foto
                 FROM
                     " . $this->table_name . " f
-                JOIN
+                LEFT JOIN
                     departamentos d ON f.id_departamento = d.id_departamento
                 LEFT JOIN
                     " . $this->table_name . " chefe ON f.id_chefe_direto = chefe.id_funcionario
                 ORDER BY
                     f.nome ASC";
 
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        // Convertendo binário para base64
-        foreach ($result as &$row) {
-            if (!empty($row['foto'])) {
-                $row['foto_base64'] = 'data:image/jpeg;base64,' . base64_encode($row['foto']);
-                unset($row['foto']);
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Convertir binario a base64 con tipo correcto
+            foreach ($result as &$row) {
+                if (!empty($row['foto'])) {
+                    $mime = null;
+                    $bin = $row['foto'];
+                    // Detectar tipo de imagen por cabecera binaria
+                    if (substr($bin, 0, 2) === "\xFF\xD8") {
+                        $mime = 'image/jpeg';
+                    } elseif (substr($bin, 0, 8) === "\x89PNG\x0D\x0A\x1A\x0A") {
+                        $mime = 'image/png';
+                    }
+                    if ($mime) {
+                        $row['foto_base64'] = 'data:' . $mime . ';base64,' . base64_encode($bin);
+                    } else {
+                        $row['foto_base64'] = null; // Imagen no válida o tipo desconocido
+                    }
+                    unset($row['foto']);
+                } else {
+                    $row['foto_base64'] = null;
+                    unset($row['foto']);
+                }
             }
+            return $result;
+        } catch (Exception $e) {
+            // Registrar el error en el log
+            file_put_contents(__DIR__ . '/../core/router_debug.log',
+                date('c') . " | Funcionario::getAll | ERROR: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString() . "\n", FILE_APPEND);
+            throw $e;
         }
-        return $result;
     }
     
     // Método para criar um novo funcionário
     public function create() {
-        // Query SQL para inserir um novo funcionário (agora inclui foto)
-        $query = "INSERT INTO " . $this->table_name . " 
-                (nome, sobrenome, numero_documento, email, cargo, data_contratacao, codigo_sistema_interno, id_departamento, id_chefe_direto, foto) 
-                VALUES 
-                (:nome, :sobrenome, :numero_documento, :email, :cargo, :data_contratacao, :codigo_sistema_interno, :id_departamento, :id_chefe_direto, :foto)";
-        
-        // Preparar a query
+        $query = "INSERT INTO " . $this->table_name . "
+                SET
+                    nome=:nome, sobrenome=:sobrenome, numero_documento=:numero_documento, email=:email, cargo=:cargo, data_contratacao=:data_contratacao, data_nascimento=:data_nascimento, codigo_sistema_interno=:codigo_sistema_interno, id_departamento=:id_departamento, id_chefe_direto=:id_chefe_direto, foto=:foto";
         $stmt = $this->conn->prepare($query);
-        
-        // Limpar e sanitizar os dados
+          // Limpar e sanitizar os dados
         $this->nome = htmlspecialchars(strip_tags($this->nome));
         $this->sobrenome = htmlspecialchars(strip_tags($this->sobrenome));
         $this->numero_documento = htmlspecialchars(strip_tags($this->numero_documento));
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->cargo = htmlspecialchars(strip_tags($this->cargo));
         $this->data_contratacao = htmlspecialchars(strip_tags($this->data_contratacao));
+        $this->data_nascimento = isset($this->data_nascimento) ? htmlspecialchars(strip_tags($this->data_nascimento)) : null;
         $this->codigo_sistema_interno = htmlspecialchars(strip_tags($this->codigo_sistema_interno));
-        
-        // Bind dos valores para os parâmetros da query
-        $stmt->bindParam(":nome", $this->nome);
-        $stmt->bindParam(":sobrenome", $this->sobrenome);
-        $stmt->bindParam(":numero_documento", $this->numero_documento);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":cargo", $this->cargo);
-        $stmt->bindParam(":data_contratacao", $this->data_contratacao);
-        $stmt->bindParam(":codigo_sistema_interno", $this->codigo_sistema_interno);
-        $stmt->bindParam(":id_departamento", $this->id_departamento);
-        $stmt->bindParam(":id_chefe_direto", $this->id_chefe_direto);
-        $stmt->bindParam(":foto", $this->foto, PDO::PARAM_LOB);
+          // Bind dos valores para os parâmetros da query
+        $stmt->bindParam(':nome', $this->nome);
+        $stmt->bindParam(':sobrenome', $this->sobrenome);
+        $stmt->bindParam(':numero_documento', $this->numero_documento);
+        $stmt->bindParam(':email', $this->email);
+        $stmt->bindParam(':cargo', $this->cargo);
+        $stmt->bindParam(':data_contratacao', $this->data_contratacao);
+        $stmt->bindParam(':data_nascimento', $this->data_nascimento);
+        $stmt->bindParam(':codigo_sistema_interno', $this->codigo_sistema_interno);
+        $stmt->bindParam(':id_departamento', $this->id_departamento);
+        $stmt->bindParam(':id_chefe_direto', $this->id_chefe_direto);
+        $stmt->bindParam(':foto', $this->foto, PDO::PARAM_LOB);
         
         // Executar a query
         if ($stmt->execute()) {
@@ -117,15 +138,17 @@ class Funcionario {
                     f.email,
                     f.cargo,
                     f.data_contratacao,
+                    f.data_nascimento,
                     f.codigo_sistema_interno,
                     f.id_departamento,
                     f.id_chefe_direto,
+                    f.foto, -- Adicionado para carregar a foto existente
                     d.nome_departamento,
                     chefe.nome AS nome_chefe,
                     chefe.sobrenome AS sobrenome_chefe
                 FROM
                     " . $this->table_name . " f
-                JOIN
+                LEFT JOIN
                     departamentos d ON f.id_departamento = d.id_departamento
                 LEFT JOIN
                     " . $this->table_name . " chefe ON f.id_chefe_direto = chefe.id_funcionario
@@ -157,27 +180,28 @@ class Funcionario {
                     email = :email,
                     cargo = :cargo,
                     data_contratacao = :data_contratacao,
+                    data_nascimento = :data_nascimento,
                     codigo_sistema_interno = :codigo_sistema_interno,
                     id_departamento = :id_departamento,
                     id_chefe_direto = :id_chefe_direto,
                     foto = :foto
                 WHERE
                     id_funcionario = :id_funcionario";
-        $stmt = $this->conn->prepare($query);
-        $this->nome = htmlspecialchars(strip_tags($this->nome));
+        $stmt = $this->conn->prepare($query);        $this->nome = htmlspecialchars(strip_tags($this->nome));
         $this->sobrenome = htmlspecialchars(strip_tags($this->sobrenome));
         $this->numero_documento = htmlspecialchars(strip_tags($this->numero_documento));
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->cargo = htmlspecialchars(strip_tags($this->cargo));
         $this->data_contratacao = htmlspecialchars(strip_tags($this->data_contratacao));
+        $this->data_nascimento = isset($this->data_nascimento) ? htmlspecialchars(strip_tags($this->data_nascimento)) : null;
         $this->codigo_sistema_interno = htmlspecialchars(strip_tags($this->codigo_sistema_interno));
-        // Não sanitizar binário
-        $stmt->bindParam(':nome', $this->nome);
+        // Não sanitizar binário        $stmt->bindParam(':nome', $this->nome);
         $stmt->bindParam(':sobrenome', $this->sobrenome);
         $stmt->bindParam(':numero_documento', $this->numero_documento);
         $stmt->bindParam(':email', $this->email);
         $stmt->bindParam(':cargo', $this->cargo);
         $stmt->bindParam(':data_contratacao', $this->data_contratacao);
+        $stmt->bindParam(':data_nascimento', $this->data_nascimento);
         $stmt->bindParam(':codigo_sistema_interno', $this->codigo_sistema_interno);
         $stmt->bindParam(':id_departamento', $this->id_departamento);
         $stmt->bindParam(':id_chefe_direto', $this->id_chefe_direto);

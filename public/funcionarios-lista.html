@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Funcionários - Intranet Itaipu</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/funcionarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar/Navegação -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="far fa-smile"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ITAIPU</h2>
+                    <p>INTRANET</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html" class="single-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-section">
+                    <p>ADMINISTRAÇÃO</p>
+                </li>
+                <li class="has-submenu submenu-open">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-users"></i>
+                        <span>Funcionários</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li class="active"><a href="funcionarios-lista.html">Lista</a></li>
+                        <li><a href="funcionarios-departamentos.html">Departamentos</a></li>
+                    </ul>
+                </li><li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-id-card"></i>
+                        <span>Crachás</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>                    </a>                    <ul class="submenu">
+                        <li><a href="crachas-lista.html">Lista</a></li>
+                        <li><a href="crachas-pendientes.html">Pendentes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-section">
+                    <p>CONFIGURAÇÃO</p>
+                </li>
+                <li>
+                    <a href="configuraciones.html" class="single-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+                <li class="logout">
+                    <a href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Encerrar Sessão</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Área principal de contenido -->
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-funcionarios" placeholder="Buscar funcionario...">
+                    </div>
+                    <div class="user-profile">
+                        <span class="notification">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </span>
+                        <div class="profile-info">
+                            <span class="user-name">Usuario Actual</span>
+                            <span class="user-role">Administrador</span>
+                        </div>
+                        <div class="avatar">
+                            <img src="assets/img/avatar-placeholder.jpg" alt="Usuario">
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <h1>Gestão de Funcionários</h1>
+                    <button id="btn-add-funcionario" class="btn-primary">
+                        <i class="fas fa-plus"></i> Novo Funcionário
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filter-departamento">Departamento:</label>
+                        <select id="filter-departamento">
+                            <option value="">Todos</option>
+                            <!-- Se llenará dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-estado">Estado:</label>
+                        <select id="filter-estado">
+                            <option value="">Todos</option>
+                            <option value="activo">Ativo</option>
+                            <option value="inactivo">Inativo</option>
+                        </select>
+                    </div>
+                </div>                <div class="data-table-container">
+                    <table id="funcionarios-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Última Modificação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="funcionarios-table-body">
+                            <tr class="loading-row">
+                                <td colspan="6">Carregando dados de funcionários...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button id="prev-page" class="btn-icon" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="page-info">Página 1 de 1</span>
+                        <button id="next-page" class="btn-icon" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>    <!-- Modal para adicionar/editar funcionário -->
+    <div class="modal" id="funcionario-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Adicionar Novo Funcionário</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="funcionario-form">
+                    <input type="hidden" id="funcionario-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombre">Nome *</label>
+                            <input type="text" id="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sobrenome">Sobrenome *</label>
+                            <input type="text" id="sobrenome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_documento">Número de Documento *</label>
+                            <input type="text" id="numero_documento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cargo">Cargo *</label>
+                            <input type="text" id="cargo" required>
+                        </div>                        <div class="form-group">
+                            <label for="data_contratacao">Data de Contratação *</label>
+                            <input type="date" id="data_contratacao" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="data_nascimento">Data de Nascimento</label>
+                            <input type="date" id="data_nascimento">
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo_sistema_interno">Código Sistema Interno</label>
+                            <input type="text" id="codigo_sistema_interno">
+                        </div>                        <div class="form-group">
+                            <label for="id_departamento">Departamento *</label>
+                            <select id="id_departamento" required>
+                                <option value="">Selecione um departamento</option>
+                                <!-- Será preenchido dinamicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_chefe_direto">Chefe Direto</label>
+                            <select id="id_chefe_direto">
+                                <option value="">Nenhum</option>
+                                <!-- Será preenchido dinamicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group photo-group">
+                            <label>Foto do Funcionário</label>
+                            <div class="photo-upload-container">
+                                <div id="photo-preview" class="photo-preview">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <input type="file" id="foto" name="foto" accept="image/*" class="hidden-file-input">
+                                <button type="button" id="trigger-photo-upload" class="btn btn-secondary">Carregar Foto</button>
+                                <button type="button" id="remove-photo" class="btn btn-danger">Remover Foto</button>
+                            </div>
+                            <input type="hidden" id="remove_foto_hidden" name="remove_foto" value="0">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary cancel-modal">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>    <!-- Modal de confirmación para eliminar -->
+    <div class="modal" id="confirm-delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirmar Eliminação</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este funcionário? Esta ação não pode ser desfeita.</p>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary cancel-modal">Cancelar</button>
+                    <button type="button" id="confirm-delete" class="btn-danger">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Modal para visualizar detalhes do funcionário -->
+    <div class="modal" id="view-funcionario-modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 id="view-funcionario-title">Detalhes do Funcionário</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="funcionario-detail-container">
+                    <div class="funcionario-photo">
+                        <div id="view-photo-container">
+                            <i class="fas fa-user-circle fa-5x"></i>
+                        </div>
+                    </div>
+                    <div class="funcionario-info">
+                        <h3 id="view-funcionario-name"></h3>
+                        
+                        <div class="detail-section">
+                            <h4>Informações Pessoais</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">ID:</span>
+                                <span id="view-id" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">E-mail:</span>
+                                <span id="view-email" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Documento:</span>
+                                <span id="view-documento" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Data de Nascimento:</span>
+                                <span id="view-nascimento" class="detail-value"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>Informações Profissionais</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Cargo:</span>
+                                <span id="view-cargo" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Departamento:</span>
+                                <span id="view-departamento" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Chefe Direto:</span>
+                                <span id="view-chefe" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Data de Contratação:</span>
+                                <span id="view-contratacao" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Código Sistema Interno:</span>
+                                <span id="view-codigo" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status:</span>
+                                <span id="view-status" class="detail-value"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>Informações do Sistema</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Data de Criação:</span>
+                                <span id="view-criacao" class="detail-value"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Última Modificação:</span>
+                                <span id="view-modificacao" class="detail-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary cancel-modal">Fechar</button>
+                    <button type="button" id="edit-from-view" class="btn-primary">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="assets/js/funcionarios.js"></script>
+    <script src="assets/js/common.js"></script>
+</body>
+</html>

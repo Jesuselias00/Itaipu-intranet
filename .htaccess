@@ -4,13 +4,9 @@ RewriteEngine On
 # Establecer directorio base
 RewriteBase /Itaipu-intranet/
 
-# Si el archivo o directorio solicitado no existe físicamente
+# No reescribir para archivos o directorios que ya existen
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Si la URL comienza con 'api/'
-RewriteRule ^api/(.*)$ public/index.php [QSA,L]
-
-# Si no es una solicitud de API, redirigir a la página principal
-RewriteRule ^$ public/index.php [QSA,L]
-RewriteRule ^([^/]+)/?$ public/index.php [QSA,L]
+# Redirigir todas las peticiones de la API a app/api.php
+RewriteRule ^api/(.*)$ app/api.php [L]

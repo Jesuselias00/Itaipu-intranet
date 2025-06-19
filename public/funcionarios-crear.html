@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar/Editar Funcionário - Intranet Itaipu</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/funcionarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar/Navegación -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="far fa-smile"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ITAIPU</h2>
+                    <p>INTRANET</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html" class="single-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>                <li class="nav-section">
+                    <p>ADMINISTRAÇÃO</p>
+                </li>
+                <li class="has-submenu submenu-open">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-users"></i>
+                        <span>Funcionários</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="funcionarios-lista.html">Lista</a></li>
+                        <li><a href="funcionarios-departamentos.html">Departamentos</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-id-card"></i>
+                        <span>Crachás</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="crachas-lista.html">Lista</a></li>
+                        <li><a href="crachas-pendientes.html">Pendentes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-section">
+                    <p>CONFIGURAÇÃO</p>
+                </li>
+                <li>
+                    <a href="configuraciones.html" class="single-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuraciones</span>
+                    </a>
+                </li>
+                <li class="logout">
+                    <a href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Área principal de contenido -->
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="header-right">
+                        <div class="notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-details">
+                                <span class="user-name">Admin User</span>
+                                <span class="user-role">Administrador</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1 id="page-title">Criar Novo Funcionário</h1>
+                    <div class="actions">
+                        <a href="funcionarios-lista.html" class="btn btn-outline">
+                            <i class="fas fa-arrow-left"></i> Voltar à lista
+                        </a>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Dados do Funcionário</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="funcionario-form" class="form-layout">
+                                <input type="hidden" id="id_funcionario" name="id_funcionario">
+                                
+                                <div class="form-section">
+                                    <h3>Informação Pessoal</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="nome">Nome*</label>
+                                            <input type="text" id="nome" name="nome" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sobrenome">Sobrenome*</label>
+                                            <input type="text" id="sobrenome" name="sobrenome" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="numero_documento">Número de Documento*</label>
+                                            <input type="text" id="numero_documento" name="numero_documento" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="data_nascimento">Data de Nascimento</label>
+                                            <input type="date" id="data_nascimento" name="data_nascimento" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="email">E-mail*</label>
+                                            <input type="email" id="email" name="email" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                  <div class="form-section">
+                                    <h3>Informação Profissional</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="cargo">Cargo</label>
+                                            <input type="text" id="cargo" name="cargo" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="data_contratacao">Data de Contratação</label>
+                                            <input type="date" id="data_contratacao" name="data_contratacao" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="codigo_sistema_interno">Código de Sistema Interno</label>
+                                            <input type="text" id="codigo_sistema_interno" name="codigo_sistema_interno" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="id_departamento">Departamento</label>
+                                            <select id="id_departamento" name="id_departamento" class="form-control">
+                                                <option value="">Selecione um departamento</option>
+                                                <!-- Opciones cargadas dinámicamente -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="id_chefe_direto">Chefe Direto</label>
+                                            <select id="id_chefe_direto" name="id_chefe_direto" class="form-control">
+                                                <option value="">Selecione um chefe direto</option>
+                                                <!-- Opciones cargadas dinámicamente -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                  <div class="form-section">
+                                    <h3>Fotografia</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <div class="file-upload-container">
+                                                <div class="file-preview" id="foto-preview">
+                                                    <i class="fas fa-user"></i>
+                                                    <span>Sem foto</span>
+                                                </div>
+                                                <div class="file-input-wrapper">
+                                                    <input type="file" id="foto" name="foto" accept="image/*" class="file-input">
+                                                    <label for="foto" class="btn btn-outline">
+                                                        <i class="fas fa-upload"></i> Selecionar Arquivo
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Formatos aceitos: JPG, PNG. Tamanho máximo: 2MB.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-outline" id="cancel-btn">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary" id="submit-btn">Salvar Funcionário</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/funcionarios-form.js"></script>
+</body>
+</html>

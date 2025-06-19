@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Crachá - Intranet Itaipu</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar/Navegación -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="far fa-smile"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ITAIPU</h2>
+                    <p>INTRANET</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html" class="single-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>                <li class="nav-section">
+                    <p>ADMINISTRAÇÃO</p>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-users"></i>
+                        <span>Funcionários</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="funcionarios-lista.html">Lista</a></li>
+                        <li><a href="funcionarios-departamentos.html">Departamentos</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu submenu-open">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-id-card"></i>
+                        <span>Crachás</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="crachas-lista.html">Lista</a></li>
+                        <li><a href="crachas-pendientes.html">Pendentes</a></li>
+                    </ul>
+                </li>                <li class="nav-section">
+                    <p>CONFIGURAÇÃO</p>
+                </li>
+                <li>
+                    <a href="configuraciones.html" class="single-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuraciones</span>
+                    </a>
+                </li>
+                <li class="logout">
+                    <a href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Área principal de contenido -->
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-funcionarios" placeholder="Buscar funcionario...">
+                    </div>
+                    <div class="header-right">
+                        <div class="notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-details">
+                                <span class="user-name">Admin User</span>
+                                <span class="user-role">Administrador</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1>Solicitar Novo Crachá</h1>
+                    <div class="actions">
+                        <a href="crachas-lista.html" class="btn btn-outline">
+                            <i class="fas fa-arrow-left"></i> Voltar à Lista
+                        </a>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Formulário de Solicitação</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="cracha-form" class="form-layout">
+                                <div class="form-group">
+                                    <label for="funcionario">Funcionário*</label>
+                                    <select id="funcionario" class="form-control" required>
+                                        <option value="">Selecione um funcionário</option>
+                                        <option value="1">João Silva</option>
+                                        <option value="2">Maria Santos</option>
+                                        <option value="3">Carlos Oliveira</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="motivo">Motivo do Crachá*</label>
+                                    <select id="motivo" class="form-control" required>
+                                        <option value="">Selecione um motivo</option>
+                                        <option value="1">Novo Ingresso</option>
+                                        <option value="2">Renovação</option>
+                                        <option value="3">Extravio</option>
+                                        <option value="4">Deterioração</option>
+                                        <option value="5">Mudança de Cargo</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="observaciones">Observaciones</label>
+                                    <textarea id="observaciones" class="form-control" rows="4" placeholder="Detalles adicionales sobre la solicitud..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="foto">Fotografía</label>
+                                    <div class="file-upload-container">
+                                        <div class="file-preview" id="foto-preview">
+                                            <i class="fas fa-user"></i>
+                                            <span>Sin foto</span>
+                                        </div>
+                                        <div class="file-input-wrapper">
+                                            <input type="file" id="foto" accept="image/*" class="file-input">
+                                            <label for="foto" class="btn btn-outline">
+                                                <i class="fas fa-upload"></i> Seleccionar Archivo
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Formatos aceptados: JPG, PNG. Tamaño máximo: 2MB.</small>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-outline" id="cancel-btn">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vista previa de la imagen seleccionada
+            const fotoInput = document.getElementById('foto');
+            const fotoPreview = document.getElementById('foto-preview');
+            
+            if (fotoInput && fotoPreview) {
+                fotoInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            fotoPreview.innerHTML = `<img src="${e.target.result}" alt="Vista previa">`;
+                        };
+                        
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+            
+            // Manejo del formulario
+            const form = document.getElementById('cracha-form');
+            
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const funcionario = document.getElementById('funcionario').value;
+                    const motivo = document.getElementById('motivo').value;
+                    
+                    if (!funcionario || !motivo) {
+                        showNotification('Por favor complete todos los campos obligatorios.', 'error');
+                        return;
+                    }
+                    
+                    // En una implementación real, aquí se enviaría la solicitud al servidor
+                    // Simulamos el envío con un mensaje de éxito
+                    setTimeout(() => {
+                        showNotification('Solicitud enviada correctamente.', 'success');
+                        
+                        // Redirigir a la lista de crachás después de un breve tiempo
+                        setTimeout(() => {
+                            window.location.href = 'crachas-lista.html';
+                        }, 2000);
+                    }, 1000);
+                });
+            }
+            
+            // Botón de cancelar
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    window.location.href = 'crachas-lista.html';
+                });
+            }
+        });
+        
+        // Función para mostrar notificaciones (copia simplificada de la función en common.js)
+        function showNotification(message, type = 'info') {
+            // Crear el elemento de notificación si no existe
+            let notification = document.querySelector('.notification-toast');
+            
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'notification-toast';
+                document.body.appendChild(notification);
+            }
+            
+            // Configurar clase según el tipo de notificación
+            notification.className = 'notification-toast';
+            notification.classList.add(type);
+            
+            // Establecer el mensaje
+            notification.textContent = message;
+            
+            // Mostrar y luego ocultar después de un tiempo
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

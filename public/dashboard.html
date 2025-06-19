@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet Itaipu - Painel de Controle</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar/Navegación -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="far fa-smile"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ITAIPU</h2>
+                    <p>INTRANET</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li class="active">
+                    <a href="dashboard.html" class="single-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>                <li class="nav-section">
+                    <p>ADMINISTRAÇÃO</p>
+                </li>                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-users"></i>
+                        <span>Funcionários</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="funcionarios-lista.html">Lista</a></li>
+                        <li><a href="funcionarios-departamentos.html">Departamentos</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-id-card"></i>
+                        <span>Crachás</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="crachas-lista.html">Lista</a></li>
+                        <li><a href="crachas-pendientes.html">Pendentes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-section">
+                    <p>RELATÓRIOS</p>
+                </li>
+                <li>
+                    <a href="reportes-funcionarios.html" class="single-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Estadísticas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reportes-crachas.html" class="single-link">
+                        <i class="fas fa-table"></i>
+                        <span>Reportes</span>
+                    </a>
+                </li>
+                <li class="nav-section">
+                    <p>CONFIGURACIÓN</p>
+                </li>
+                <li>
+                    <a href="configuracion.html" class="single-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuración</span>
+                    </a>
+                </li>
+                <li class="logout">
+                    <a href="#" id="logout-btn" class="single-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-collapse-btn">
+                <button id="collapse-sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Área principal de contenido -->
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>                        <input type="text" placeholder="Buscar...">
+                    </div>
+                    <div class="user-profile">
+                        <span class="notification">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </span>
+                        <div class="profile-info">
+                            <span class="user-name">Usuário Atual</span>
+                            <span class="user-role">Administrador</span>
+                        </div>
+                        <div class="avatar">
+                            <img src="assets/img/avatar-placeholder.jpg" alt="Usuario">
+                        </div>
+                    </div>
+                </div>
+            </header>            <div class="dashboard-content">
+                <h1>Painel de Controle</h1>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-card-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <p class="stat-card-title">Total Funcionários</p>
+                            <p class="stat-card-value" id="total-funcionarios">0</p>
+                            <p class="stat-card-change increase">+5% <span>desde o mês passado</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon green">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <p class="stat-card-title">Crachás Ativos</p>
+                            <p class="stat-card-value" id="total-crachas">0</p>
+                            <p class="stat-card-change increase">+2% <span>desde o mês passado</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon orange">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <p class="stat-card-title">Departamentos</p>
+                            <p class="stat-card-value" id="total-departamentos">0</p>
+                            <p class="stat-card-change no-change">0% <span>sem alterações</span></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon red">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <p class="stat-card-title">Crachás Pendentes</p>
+                            <p class="stat-card-value" id="crachas-pendientes">0</p>
+                            <p class="stat-card-change decrease">-10% <span>desde el mes pasado</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Gráfico de funcionarios por departamento -->
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <h3>Funcionarios por Departamento</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="dashboard-card-body">
+                            <canvas id="dept-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Lista de últimos funcionarios incorporados -->
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <h3>Últimos Funcionarios</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="dashboard-card-body">
+                            <ul class="recent-users" id="recent-users-list">
+                                <!-- Se llenará dinámicamente -->
+                                <li class="loading-placeholder">Cargando datos...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

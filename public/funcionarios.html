@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+                        <span>Funcionários</span>head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Funcionarios - Intranet Itaipu</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/funcionarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar/Navegación -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="far fa-smile"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ITAIPU</h2>
+                    <p>INTRANET</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html" class="single-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>                <li class="nav-section">
+                    <p>ADMINISTRAÇÃO</p>
+                </li>
+                <li class="has-submenu active">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-users"></i>
+                        <span>Funcionários</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li class="active"><a href="funcionarios.html">Lista</a></li>
+                        <li><a href="funcionarios-departamentos.html">Departamentos</a></li>
+                    </ul>
+                </li>                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-id-card"></i>
+                        <span>Crachás</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="crachas-lista.html">Lista</a></li>
+                        <li><a href="crachas-pendientes.html">Pendentes</a></li>
+                    </ul>
+                </li>                <li class="nav-section">
+                    <p>CONFIGURAÇÃO</p>
+                </li>
+                <li>
+                    <a href="configuraciones.html" class="single-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuraciones</span>
+                    </a>
+                </li>
+                <li class="logout">
+                    <a href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Área principal de contenido -->
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-funcionarios" placeholder="Buscar funcionario...">
+                    </div>
+                    <div class="user-profile">
+                        <span class="notification">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </span>
+                        <div class="profile-info">
+                            <span class="user-name">Usuario Actual</span>
+                            <span class="user-role">Administrador</span>
+                        </div>
+                        <div class="avatar">
+                            <img src="assets/img/avatar-placeholder.jpg" alt="Usuario">
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <h1>Gestión de Funcionarios</h1>
+                    <button id="btn-add-funcionario" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Funcionario
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filter-departamento">Departamento:</label>
+                        <select id="filter-departamento">
+                            <option value="">Todos</option>
+                            <!-- Se llenará dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-estado">Estado:</label>
+                        <select id="filter-estado">
+                            <option value="">Todos</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <table id="funcionarios-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Cargo</th>
+                                <th>Departamento</th>
+                                <th>Contratación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="funcionarios-table-body">
+                            <tr class="loading-row">
+                                <td colspan="8">Cargando datos de funcionarios...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button id="prev-page" class="btn-icon" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="page-info">Página 1 de 1</span>
+                        <button id="next-page" class="btn-icon" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para agregar/editar funcionario -->
+    <div class="modal" id="funcionario-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Agregar Nuevo Funcionario</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="funcionario-form">
+                    <input type="hidden" id="funcionario-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombre">Nombre *</label>
+                            <input type="text" id="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sobrenome">Apellido *</label>
+                            <input type="text" id="sobrenome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_documento">Número de Documento *</label>
+                            <input type="text" id="numero_documento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cargo">Cargo *</label>
+                            <input type="text" id="cargo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="data_contratacao">Fecha de Contratación *</label>
+                            <input type="date" id="data_contratacao" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo_sistema_interno">Código Sistema Interno</label>
+                            <input type="text" id="codigo_sistema_interno">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_departamento">Departamento *</label>
+                            <select id="id_departamento" required>
+                                <option value="">Seleccione un departamento</option>
+                                <!-- Se llenará dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_chefe_direto">Jefe Directo</label>
+                            <select id="id_chefe_direto">
+                                <option value="">Ninguno</option>
+                                <!-- Se llenará dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group photo-upload">
+                            <label for="foto">Foto</label>
+                            <div class="photo-preview-container">
+                                <div id="photo-preview">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <input type="file" id="foto" accept="image/*">
+                                <button type="button" id="trigger-photo-upload" class="btn-secondary">
+                                    <i class="fas fa-camera"></i> Seleccionar Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary cancel-modal">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div class="modal" id="confirm-delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirmar Eliminación</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar a este funcionario? Esta acción no se puede deshacer.</p>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary cancel-modal">Cancelar</button>
+                    <button type="button" id="confirm-delete" class="btn-danger">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="assets/js/funcionarios.js"></script>
+    <script src="assets/js/common.js"></script>
+</body>
+</html>

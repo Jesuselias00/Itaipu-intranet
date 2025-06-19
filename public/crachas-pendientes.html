@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+                          <li class="active"><a href="crachas-pendientes.html">Pendentes</a></li> <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crachás Pendentes - Intranet Itaipu</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar/Navegación -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="far fa-smile"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ITAIPU</h2>
+                    <p>INTRANET</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html" class="single-link">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>                <li class="nav-section">
+                    <p>ADMINISTRAÇÃO</p>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-users"></i>
+                        <span>Funcionários</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="funcionarios-lista.html">Lista</a></li>
+                        <li><a href="funcionarios-departamentos.html">Departamentos</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu submenu-open">
+                    <a href="#" class="submenu-toggle">
+                        <i class="fas fa-id-card"></i>
+                        <span>Crachás</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    </a>                    <ul class="submenu">
+                        <li><a href="crachas-lista.html">Lista</a></li>
+                        <li class="active"><a href="crachas-pendientes.html">Pendentes</a></li>
+                    </ul>
+                </li>                <li class="nav-section">
+                    <p>CONFIGURAÇÃO</p>
+                </li>
+                <li>
+                    <a href="configuraciones.html" class="single-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuraciones</span>
+                    </a>
+                </li>
+                <li class="logout">
+                    <a href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Área principal de contenido -->
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-pendientes" placeholder="Buscar crachá pendiente...">
+                    </div>
+                    <div class="header-right">
+                        <div class="notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-details">
+                                <span class="user-name">Admin User</span>
+                                <span class="user-role">Administrador</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1>Crachás Pendentes</h1>
+                    <div class="actions">
+                        <a href="crachas-solicitar.html" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Solicitar Novo
+                        </a>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Solicitações Pendentes</h2>
+                            <div class="card-tools">
+                                <select id="filter-motivo" class="form-control">
+                                    <option value="">Todos os motivos</option>
+                                    <option value="novo ingresso">Novo Ingresso</option>
+                                    <option value="renovação">Renovação</option>
+                                    <option value="extravio">Extravio</option>
+                                    <option value="deterioração">Deterioração</option>
+                                </select>
+                                <button class="btn btn-outline" id="refresh-btn">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Funcionario</th>
+                                        <th>Motivo</th>
+                                        <th>Fecha Solicitud</th>
+                                        <th>Solicitante</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendientes-list">
+                                    <!-- Los datos se cargarán dinámicamente -->
+                                    <tr>
+                                        <td>001</td>
+                                        <td>Ana Jiménez</td>
+                                        <td>Nuevo Ingreso</td>
+                                        <td>20/08/2024</td>
+                                        <td>Carlos Rodríguez</td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="btn-icon" data-id="001" title="Ver detalle">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon text-success" data-id="001" title="Aprobar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn-icon text-danger" data-id="001" title="Rechazar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>002</td>
+                                        <td>Pedro López</td>
+                                        <td>Extravío</td>
+                                        <td>19/08/2024</td>
+                                        <td>María Gómez</td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="btn-icon" data-id="002" title="Ver detalle">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon text-success" data-id="002" title="Aprobar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn-icon text-danger" data-id="002" title="Rechazar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>003</td>
+                                        <td>Laura Fernández</td>
+                                        <td>Renovación</td>
+                                        <td>18/08/2024</td>
+                                        <td>Laura Fernández</td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="btn-icon" data-id="003" title="Ver detalle">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon text-success" data-id="003" title="Aprobar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn-icon text-danger" data-id="003" title="Rechazar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="pagination">
+                                <button class="btn-prev"><i class="fas fa-chevron-left"></i></button>
+                                <div class="page-numbers">
+                                    <button class="active">1</button>
+                                    <button>2</button>
+                                    <button>3</button>
+                                </div>
+                                <button class="btn-next"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para ver detalle de la solicitud -->
+    <div id="modal-ver-solicitud" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalle de Solicitud</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="solicitud-detail">
+                <div class="detail-columns">
+                    <div class="left-column">
+                        <div class="detail-row">
+                            <span class="detail-label">ID Solicitud:</span>
+                            <span class="detail-value">001</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Funcionario:</span>
+                            <span class="detail-value">Ana Jiménez</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Cargo:</span>
+                            <span class="detail-value">Analista de Sistemas</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Departamento:</span>
+                            <span class="detail-value">Tecnología</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Motivo:</span>
+                            <span class="detail-value">Nuevo Ingreso</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Fecha de solicitud:</span>
+                            <span class="detail-value">20/08/2024</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Solicitante:</span>
+                            <span class="detail-value">Carlos Rodríguez</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Observaciones:</span>
+                            <span class="detail-value">Nuevo funcionario que ingresa el 25/08/2024. Se requiere el crachá para esa fecha.</span>
+                        </div>
+                    </div>
+                    <div class="right-column">
+                        <div class="photo-preview">
+                            <div class="photo-frame">
+                                <i class="fas fa-user fa-5x"></i>
+                                <p>Vista previa de la foto</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="btn-rechazar">Rechazar</button>
+                <button class="btn btn-outline cancel-modal">Cancelar</button>
+                <button class="btn btn-success" id="btn-aprobar">Aprobar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar los eventos para los botones de ver detalle
+            document.querySelectorAll('button[title="Ver detalle"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    document.getElementById('modal-ver-solicitud').classList.add('show');
+                });
+            });
+            
+            // Configurar los botones de aprobar y rechazar dentro de la tabla
+            document.querySelectorAll('button[title="Aprobar"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    if (confirm('¿Estás seguro de que deseas aprobar esta solicitud?')) {
+                        // En una implementación real, aquí se haría una petición AJAX
+                        showNotification('Solicitud aprobada correctamente', 'success');
+                        // Simular la eliminación de la fila
+                        setTimeout(() => {
+                            this.closest('tr').remove();
+                        }, 1000);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('button[title="Rechazar"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    if (confirm('¿Estás seguro de que deseas rechazar esta solicitud?')) {
+                        // En una implementación real, aquí se haría una petición AJAX
+                        showNotification('Solicitud rechazada correctamente', 'warning');
+                        // Simular la eliminación de la fila
+                        setTimeout(() => {
+                            this.closest('tr').remove();
+                        }, 1000);
+                    }
+                });
+            });
+            
+            // Configurar los botones de aprobar y rechazar dentro del modal
+            document.getElementById('btn-aprobar').addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que deseas aprobar esta solicitud?')) {
+                    // En una implementación real, aquí se haría una petición AJAX
+                    document.getElementById('modal-ver-solicitud').classList.remove('show');
+                    showNotification('Solicitud aprobada correctamente', 'success');
+                    // Simular la eliminación de la fila correspondiente
+                    setTimeout(() => {
+                        document.querySelector('tr:first-child').remove();
+                    }, 1000);
+                }
+            });
+            
+            document.getElementById('btn-rechazar').addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que deseas rechazar esta solicitud?')) {
+                    // En una implementación real, aquí se haría una petición AJAX
+                    document.getElementById('modal-ver-solicitud').classList.remove('show');
+                    showNotification('Solicitud rechazada correctamente', 'warning');
+                    // Simular la eliminación de la fila correspondiente
+                    setTimeout(() => {
+                        document.querySelector('tr:first-child').remove();
+                    }, 1000);
+                }
+            });
+            
+            // Filtro por motivo
+            document.getElementById('filter-motivo').addEventListener('change', function() {
+                const motivoFilter = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#pendientes-list tr');
+                
+                rows.forEach(row => {
+                    const motivoCell = row.querySelector('td:nth-child(3)');
+                    const motivoText = motivoCell.textContent.toLowerCase();
+                    
+                    if (!motivoFilter || motivoText.includes(motivoFilter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Búsqueda
+            document.getElementById('search-pendientes').addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#pendientes-list tr');
+                
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    let found = false;
+                    
+                    cells.forEach(cell => {
+                        if (cell.textContent.toLowerCase().includes(searchText)) {
+                            found = true;
+                        }
+                    });
+                    
+                    row.style.display = found ? '' : 'none';
+                });
+            });
+            
+            // Botón de actualizar
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                // En una implementación real, aquí se recargarían los datos
+                showNotification('Lista actualizada correctamente', 'success');
+            });
+        });
+        
+        // Función para mostrar notificaciones (copia simplificada de la función en common.js)
+        function showNotification(message, type = 'info') {
+            // Crear el elemento de notificación si no existe
+            let notification = document.querySelector('.notification-toast');
+            
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'notification-toast';
+                document.body.appendChild(notification);
+            }
+            
+            // Configurar clase según el tipo de notificación
+            notification.className = 'notification-toast';
+            notification.classList.add(type);
+            
+            // Establecer el mensaje
+            notification.textContent = message;
+            
+            // Mostrar y luego ocultar después de un tiempo
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

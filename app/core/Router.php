@@ -69,15 +69,14 @@ class Router {
                 // Log do padrão sendo testado e da chave da rota
                 file_put_contents(__DIR__ . '/router_debug.log', 
                     date('c') . " | Router::dispatch | Testando rota (chave): '" . $route . "' | Padrão: '" . $pattern . "' | Contra URI: '" . $uri . "'\n", FILE_APPEND);
-                
-                if (preg_match($pattern, $uri, $matches)) {
+                  if (preg_match($pattern, $uri, $matches)) {
                     // Remove o índice completo do match
                     array_shift($matches);
                     $params = $matches;
 
                     // Log dos parâmetros para depuração
                     file_put_contents(__DIR__ . '/router_debug.log', 
-                        date('c') . " | Router::dispatch | Rota correspondente: $route | Parâmetros: " . 
+                        date('c') . " | Router::dispatch | ¡COINCIDENCIA ENCONTRADA! Rota correspondente: $route | Parâmetros: " . 
                         json_encode($params) . "\n", FILE_APPEND);
                     
                     if (is_callable($callback)) {
@@ -94,6 +93,9 @@ class Router {
                     
                     $routeFound = true;
                     break;
+                } else {
+                    file_put_contents(__DIR__ . '/router_debug.log', 
+                        date('c') . " | Router::dispatch | Patrón '" . $pattern . "' NO coincide con URI: '" . $uri . "'\n", FILE_APPEND);
                 }
             }
         }
@@ -104,16 +106,17 @@ class Router {
                 date('c') . " | Router::dispatch | ERRO: Rota não encontrada para URI: $uri e método: $method\n", FILE_APPEND);
             $this->notFound();
         }
-    }
-
-    // Converte padrões de rota como 'funcionarios/{id}' para regex
+    }    // Converte padrões de rota como 'funcionarios/{id}' para regex de forma robusta
     private function convertRouteToRegex($route) {
-        // Solo reemplaza {param} por grupo de captura
+        // Usa # como delimitador para não precisar escapar a barra '/'
         $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([^/]+)', $route);
-        // Escapa solo los caracteres regex especiales, pero NO las llaves
-        $pattern = str_replace('/', '\/', $pattern);
-        // Regex completo
-        return '/^' . $pattern . '$/';
+        $regex = '#^' . $pattern . '$#';
+
+        // Log para depuração
+        file_put_contents(__DIR__ . '/router_debug.log', 
+            date('c') . " | Router::convertRouteToRegex | Rota: '$route' -> Regex: '$regex'\n", FILE_APPEND);
+        
+        return $regex;
     }
 
     // Método separado para isolar a lógica de chamar um controlador
@@ -156,9 +159,7 @@ class Router {
                 " | Pilha: " . $e->getTraceAsString() . "\n", FILE_APPEND);
             $this->notFound();
         }
-    }
-
-    // Obtém a URI limpa da requisição
+    }    // Obtém a URI limpa da requisição
     private function getUri() {
         // Obtém a URI original
         $originalUri = $_SERVER['REQUEST_URI'];
@@ -169,26 +170,27 @@ class Router {
         
         // Remover parâmetros da query string (se houver)
         $uri = parse_url($originalUri, PHP_URL_PATH);
-        $uri = trim($uri, '/');
-        
-        // Detectar o padrão de API na URI
-        $apiPattern = '/api/';
-        $apiPos = strpos($uri, $apiPattern);
-        
-        if ($apiPos !== false) {
-            // Se encontrou /api/, extrai a parte após /api/
-            $uri = substr($uri, $apiPos + strlen($apiPattern));
-        }
-        
-        // Também tenta remover Itaipu-intranet/ se estiver presente
-        $projectPattern = 'Itaipu-intranet/';
-        if (strpos($uri, $projectPattern) === 0) {
-            $uri = substr($uri, strlen($projectPattern));
-            
-            // Se após remover o projeto ainda tiver api/, remover também
-            if (strpos($uri, $apiPattern) === 0) {
-                $uri = substr($uri, strlen($apiPattern));
-            }
+        $uri = trim($uri, '/');      // Enfoque mais direto para extraer a parte relevante de la URI
+        if (strpos($uri, 'Itaipu-intranet/api/') === 0) {
+            // Elimina "Itaipu-intranet/api/" del principio
+            $uri = substr($uri, strlen('Itaipu-intranet/api/'));
+            file_put_contents(__DIR__ . '/router_debug.log', 
+                date('c') . " | Router::getUri | Detectado prefijo 'Itaipu-intranet/api/' -> $uri\n", FILE_APPEND);
+        } else if (strpos($uri, 'api/') === 0) {
+            // Elimina "api/" del principio
+            $uri = substr($uri, strlen('api/'));
+            file_put_contents(__DIR__ . '/router_debug.log', 
+                date('c') . " | Router::getUri | Detectado prefijo 'api/' -> $uri\n", FILE_APPEND);
+        } else if (strpos($uri, 'app/api.php/') !== false) {
+            // Elimina todo hasta después de "app/api.php/"
+            $uri = substr($uri, strpos($uri, 'app/api.php/') + strlen('app/api.php/'));
+            file_put_contents(__DIR__ . '/router_debug.log', 
+                date('c') . " | Router::getUri | Encontrado 'app/api.php/' en URI -> $uri\n", FILE_APPEND);
+        } else if (strpos($uri, 'Itaipu-intranet/app/api.php/') !== false) {
+            // Elimina todo hasta depois de "Itaipu-intranet/app/api.php/"
+            $uri = substr($uri, strpos($uri, 'Itaipu-intranet/app/api.php/') + strlen('Itaipu-intranet/app/api.php/'));
+            file_put_contents(__DIR__ . '/router_debug.log', 
+                date('c') . " | Router::getUri | Encontrado 'Itaipu-intranet/app/api.php/' en URI -> $uri\n", FILE_APPEND);
         }
         
         // Normalizar: remover barra final, se houver
@@ -196,7 +198,7 @@ class Router {
         
         // Log da URI processada para depuração
         file_put_contents(__DIR__ . '/router_debug.log', 
-            date('c') . " | Router::getUri | URI processada: $uri\n", FILE_APPEND);
+            date('c') . " | Router::getUri | URI processada final: $uri\n", FILE_APPEND);
             
         return $uri;
     }
@@ -213,5 +215,21 @@ class Router {
         ]);
         
         exit;
+    }
+    
+    // Obtiene todas las rutas registradas
+    public function getRegisteredRoutes() {
+        $allRoutes = [];
+        foreach ($this->routes as $method => $routes) {
+            foreach ($routes as $route => $callback) {
+                $allRoutes[] = "$method:$route";
+            }
+        }
+        return $allRoutes;
+    }
+    
+    // Obtiene la ruta actual que se está solicitando
+    public function getCurrentRoute() {
+        return $this->getUri();
     }
 }
