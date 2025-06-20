@@ -1,0 +1,8 @@
+{
+    "name": "itaipu/intranet",
+    "description": "Projeto de intranet para Itaipu",
+    "type": "project",
+    "require": {
+        "bramus/router": "^1.6"
+    }
+}

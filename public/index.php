@@ -56,7 +56,15 @@ if ($isApiRequest) {
     ob_start();
     
     try {
-        require_once __DIR__ . '/../app/api.php';
+        require_once __DIR__ . '/../app/core/Router.php';
+        
+        // Enrutar la solicitud usando el Router
+        $method = $_SERVER['REQUEST_METHOD'];
+        $request = explode('/', trim($_SERVER['PATH_INFO'] ?? '', '/'));
+        $resource = $request[0] ?? null;
+        $id = $request[1] ?? null;
+        
+        Router::route($method, $resource, $id);
     } catch (Exception $e) {
         // Limpiar cualquier salida anterior
         ob_clean();

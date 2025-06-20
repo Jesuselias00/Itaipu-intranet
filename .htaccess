@@ -1,12 +1,10 @@
 # Habilitar el motor de reescritura
 RewriteEngine On
 
-# Establecer directorio base
-RewriteBase /Itaipu-intranet/
+# Permitir acceso directo a archivos existentes
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
 
-# No reescribir para archivos o directorios que ya existen
-RewriteCond %{REQUEST_FILENAME} !-f
+# Redirigir todo lo demás a app/api.php con el parámetro _url
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Redirigir todas las peticiones de la API a app/api.php
-RewriteRule ^api/(.*)$ app/api.php [L]
+RewriteRule ^(.*)$ app/api.php?_url=/$1 [QSA,L]

@@ -1,143 +1,117 @@
 <?php
 // app/api.php
 
-// Asegurar que todos los errores sean reportados
+// Habilitar la visualización de errores para diagnóstico
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Permitir solicitudes desde cualquier origen (para desenvolvimento)
-header("Access-Control-Allow-Origin: *");
+// --- Headers para permitir CORS (Cross-Origin Resource Sharing) ---
+header("Access-Control-Allow-Origin: *"); // En producción, deberías restringirlo a tu dominio
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-header("Content-Type: application/json; charset=UTF-8"); // Forzar el tipo de contenido a JSON
 
-// Si es una solicitud OPTIONS (preflight), terminar aquí.
+// Si es una solicitud OPTIONS (preflight de CORS), terminar aquí con éxito.
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
     exit(0);
 }
 
-// Registrar la solicitud para depuración
+// --- El tipo de contenido de la respuesta siempre será JSON ---
+header("Content-Type: application/json; charset=UTF-8");
+
+// --- Log de depuración ---
 $log_file_path = __DIR__ . '/core/router_debug.log';
-@file_put_contents($log_file_path, 
-    date('c') . " | NUEVA API SOLICITUD | " . ($_SERVER['REQUEST_URI'] ?? 'N/A') . " | Método: " . ($_SERVER['REQUEST_METHOD'] ?? 'N/A') . "\n", 
-    FILE_APPEND);
+$log_message = sprintf(
+    "[%s] %s %s",
+    date('c'),
+    $_SERVER['REQUEST_METHOD'] ?? 'N/A',
+    $_SERVER['REQUEST_URI'] ?? 'N/A'
+);
+@file_put_contents($log_file_path, $log_message . "\n", FILE_APPEND);
 
-// Intento de log inicial absoluto para depuración de creación de archivo
-$log_file_path = __DIR__ . '/core/router_debug.log';
-$initial_log_message = date('c') . " | API.php SCRIPT EJECUTADO INICIO\n";
-@file_put_contents($log_file_path, $initial_log_message, FILE_APPEND);
+// Depuración: log de variables de entorno
+file_put_contents(__DIR__ . '/core/router_debug.log', print_r($_SERVER, true), FILE_APPEND);
 
-// Para depuração durante o desenvolvimento (mostrar errores temporalmente)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Prevenir que se muestre HTML antes que JSON
-if (ob_get_level() === 0) {
-    ob_start();
+// Forzar la lectura del parámetro _url como la ruta solicitada
+if (isset($_GET['_url'])) {
+    $_SERVER['REQUEST_URI'] = $_GET['_url'];
 }
 
-// Forçar encabezado JSON solo si no hay errores fatales antes
-// header('Content-Type: application/json'); // Comentado temporalmente para ver errores HTML si ocurren
+// --- Bloque principal de la aplicación ---
+try {
+    // 1. Cargar el autoloader de Composer. Esto carga TODAS las librerías, incluyendo Bramus Router.
+    require_once __DIR__ . '/../vendor/autoload.php';
 
-// Registrar o início da execução da API (segundo intento, después de ob_start)
-@file_put_contents($log_file_path, 
-    date('c') . " | API.php iniciado (después de ob_start) | URI: " . ($_SERVER['REQUEST_URI'] ?? 'N/A') . " | Método: " . ($_SERVER['REQUEST_METHOD'] ?? 'N/A') . "\n", 
-    FILE_APPEND);
-
-try {    require_once __DIR__ . '/core/Database.php';
-    require_once __DIR__ . '/core/Router.php';
+    // 2. Cargar los CONTRALADORES (la lógica de tu aplicación)
     require_once __DIR__ . '/controllers/FuncionarioController.php';
     require_once __DIR__ . '/controllers/AuthController.php';
     require_once __DIR__ . '/controllers/CrachaController.php';
 
-    // Si llegamos aquí, los archivos base se cargaron.
-    @file_put_contents($log_file_path, date('c') . " | API.php | Archivos core y controllers cargados.\n", FILE_APPEND);
+    // 3. Crear una instancia del Router de Bramus
+    $router = new \Bramus\Router\Router();
 
-    $router = new Router();
+    // 4. Definir todas tus rutas de la API
+    // El router se encargará de llamar al método correcto en el controller correcto.
 
-    // Rota de Teste Simples
-    $router->get('test-router', function() {
+    // Rota de Teste
+    $router->get('/test-router', function () {
+        echo json_encode(['status' => 'success', 'message' => 'Bramus Router está funcionando!']);
+    });
+
+    // --- Rutas para Funcionarios ---
+    $router->get('/funcionarios', 'FuncionarioController@handleRequest');
+    $router->get('/funcionarios/(\d+)', 'FuncionarioController@handleRequest');
+    $router->post('/funcionarios', 'FuncionarioController@handleRequest');
+    $router->put('/funcionarios/(\d+)', 'FuncionarioController@handleRequest');
+    $router->delete('/funcionarios/(\d+)', 'FuncionarioController@handleRequest');
+
+    // --- Rutas para Autenticação ---
+    $router->post('/auth/login', 'AuthController@login');
+    $router->post('/auth/register', 'AuthController@register');
+    $router->post('/auth/logout', 'AuthController@logout');
+    $router->get('/auth/users', 'AuthController@getAllUsers');
+
+    // --- Rutas para Crachás ---
+    $router->get('/crachas', 'CrachaController@index');
+    $router->get('/crachas/pendentes', 'CrachaController@pendentes');
+    // Agrega aquí el resto de rutas de crachas...
+
+    // Middleware para rutas no encontradas (404)
+    $router->set404(function () {
+        header('HTTP/1.1 404 Not Found');
         echo json_encode([
-            'status' => 'success', 
-            'message' => 'Roteador funcionando!',
-            'timestamp' => time()
+            'status' => 'error',
+            'message' => 'Endpoint no encontrado'
         ]);
     });
 
-    // Rotas para funcionários - usando o formato Controller@method
-    $router->get('funcionarios', 'FuncionarioController@index'); // Listar todos
-    $router->post('funcionarios', 'FuncionarioController@store'); // Criar novo
-    $router->get('funcionarios/{id}', 'FuncionarioController@show'); // Obter um específico
-    $router->put('funcionarios/{id}', 'FuncionarioController@update'); // Atualizar via PUT
-    $router->post('funcionarios/{id}', 'FuncionarioController@update'); // Adicionado para aceitar POST como atualização
-    $router->delete('funcionarios/{id}', 'FuncionarioController@destroy'); // Excluir
+    // 5. Ejecutar el router
+    $router->run();
+
+} catch (Throwable $e) {
+    // --- Manejo de Errores Graves ---
+    // Si algo falla (ej: conexión a DB, error de sintaxis), este bloque lo captura.
     
-    // Rotas de Autenticação
-    $router->post('auth/login', 'AuthController@login');
-    $router->post('auth/logout', 'AuthController@logout');
-    $router->post('auth/register', 'AuthController@register'); // Registrar novo usuário
-    $router->get('auth/users', 'AuthController@getAllUsers'); // Listar usuários (para administradores)
-
-    // Rotas para crachás
-    $router->get('crachas', 'CrachaController@index'); // Listar todos
-    $router->get('crachas/pendentes', 'CrachaController@pendentes'); // Listar pendentes
-    $router->get('crachas/status/{status}', 'CrachaController@status'); // Filtar por status
-    $router->get('crachas/motivos', 'CrachaController@motivos'); // Listar motivos
-    $router->get('crachas/funcionario/{id}', 'CrachaController@porFuncionario'); // Listar por funcionário
-    $router->post('crachas', 'CrachaController@store'); // Criar novo
-    $router->get('crachas/{id}', 'CrachaController@show'); // Obter um específico
-    $router->put('crachas/{id}', 'CrachaController@update'); // Atualizar
-    $router->put('crachas/{id}/status', 'CrachaController@updateStatus'); // Atualizar status
-    $router->delete('crachas/{id}', 'CrachaController@destroy'); // Excluir
-
-    // Log para mostrar que o arquivo api.php foi carregado
-    @file_put_contents($log_file_path, 
-        date('c') . " | API.php | Rotas registradas | Despachando...\n", FILE_APPEND);    // Registrar las rutas disponibles para depuración
-    $availableRoutes = implode(", ", $router->getRegisteredRoutes());
-    @file_put_contents($log_file_path, 
-        date('c') . " | API.php | Rutas disponibles: " . $availableRoutes . "\n", 
-        FILE_APPEND);
-
-    // Registrar la ruta solicitada para depuración
-    @file_put_contents($log_file_path, 
-        date('c') . " | API.php | Ruta solicitada: " . ($router->getCurrentRoute() ?? 'N/A') . "\n", 
-        FILE_APPEND);
-
-    // Despachar a requisição
-    $router->dispatch();
-
-    @file_put_contents($log_file_path, date('c') . " | API.php | Despacho completado.\n", FILE_APPEND);
-
-} catch (Throwable $e) { // Cambiado a Throwable para capturar Errores y Excepciones
-    // Limpiar el buffer de salida si es necesario
-    if (ob_get_level() > 0 && ob_get_length() > 0) {
-        ob_clean();
+    // Limpiar cualquier salida anterior para asegurar una respuesta JSON limpia
+    if (ob_get_level() > 0) {
+        ob_end_clean();
     }
+
+    $error_log = sprintf(
+        "[%s] ERRO FATAL: %s em %s na linha %d\nTrace: %s\n",
+        date('c'),
+        $e->getMessage(),
+        $e->getFile(),
+        $e->getLine(),
+        $e->getTraceAsString()
+    );
+    @file_put_contents($log_file_path, $error_log, FILE_APPEND);
     
-    // Asegurarse de que el encabezado Content-Type sea JSON para la respuesta de error
-    if (!headers_sent()) {
-        header('Content-Type: application/json');
-    }
-    
-    $error_message = date('c') . " | API.php | ERROR CAPTURADO: " . $e->getMessage() . " | Archivo: " . $e->getFile() . " | Línea: " . $e->getLine() . " | Trace: " . $e->getTraceAsString() . "\n";
-    @file_put_contents($log_file_path, $error_message, FILE_APPEND);
-    
-    // Enviar respuesta de error JSON
-    if (!headers_sent()) {
-         http_response_code(500);
-    }
+    http_response_code(500); // Internal Server Error
     echo json_encode([
         'status' => 'error',
-        'message' => 'Error interno del servidor: ' . $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
+        'message' => 'Erro interno do servidor.',
+        'detail' => $e->getMessage() // Útil para depuración
     ]);
-} finally {
-    // Finalizar qualquer buffer aberto
-    if (ob_get_level() > 0) {
-        ob_end_flush();
-    }
-    @file_put_contents($log_file_path, date('c') . " | API.php SCRIPT EJECUTADO FIN\n", FILE_APPEND);
 }

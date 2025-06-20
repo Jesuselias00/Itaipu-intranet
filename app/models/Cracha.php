@@ -27,7 +27,7 @@ class Cracha {
                     c.id_funcionario, 
                     f.nome, 
                     f.sobrenome,
-                    f.foto,
+                    f.foto_path,
                     c.id_motivo, 
                     m.descricao_motivo,
                     c.data_solicitacao, 
@@ -38,29 +38,15 @@ class Cracha {
                     d.nome_departamento,
                     f.cargo
                 FROM 
-                    " . $this->table_name . " c
-                JOIN 
-                    funcionarios f ON c.id_funcionario = f.id_funcionario
-                JOIN 
-                    motivos_cracha m ON c.id_motivo = m.id_motivo
-                JOIN 
-                    departamentos d ON f.id_departamento = d.id_departamento
-                ORDER BY 
-                    c.data_solicitacao DESC";
-                    
+                    crachas c
+                LEFT JOIN funcionarios f ON c.id_funcionario = f.id
+                LEFT JOIN motivos m ON c.id_motivo = m.id_motivo
+                LEFT JOIN departamentos d ON f.id_departamento = d.id_departamento
+                ORDER BY c.data_solicitacao DESC";
+
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Convertendo a foto binária para base64
-        foreach ($result as &$row) {
-            if (!empty($row['foto'])) {
-                $row['foto_base64'] = 'data:image/jpeg;base64,' . base64_encode($row['foto']);
-                unset($row['foto']);
-            }
-        }
-        
-        return $result;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
     // Obter crachás pendentes

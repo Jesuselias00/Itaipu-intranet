@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste da API de Funcionários</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
+        #resultado { border: 1px solid #ccc; padding: 10px; background-color: #f4f4f4; white-space: pre-wrap; word-wrap: break-word; }
+        .sucesso { color: green; }
+        .erro { color: red; }
+    </style>
+</head>
+<body>
+
+    <h1>Teste de Conexão com a API</h1>
+    <p>Esta página tentará buscar a lista de funcionários da sua API e mostrará o resultado abaixo.</p>
+    <button id="testarApiBtn">Testar API</button>
+
+    <h2>Resultado:</h2>
+    <div id="status"></div>
+    <pre id="resultado">Aguardando o teste...</pre>
+
+    <script>
+        document.getElementById('testarApiBtn').addEventListener('click', () => {
+            const statusDiv = document.getElementById('status');
+            const resultadoDiv = document.getElementById('resultado');
+
+            // Limpa os resultados anteriores
+            statusDiv.innerHTML = 'Testando...';
+            resultadoDiv.textContent = '';
+            statusDiv.className = '';
+
+            // A URL para a sua API. 
+            // O seu roteador em app/api.php espera o caminho /funcionarios depois de /api.php
+            const apiUrl = '../app/api.php?_url=/funcionarios'; 
+
+            fetch(apiUrl)
+                .then(response => {
+                    // Primeiro, verificamos se a resposta da rede foi bem-sucedida (status 200-299)
+                    if (!response.ok) {
+                        // Se não foi, lançamos um erro com o status para capturarmos no .catch()
+                        throw new Error(`Erro de Rede: ${response.status} - ${response.statusText}`);
+                    }
+                    // Se foi bem-sucedida, tentamos converter a resposta para JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Se o JSON foi parseado com sucesso, mostramos os dados
+                    statusDiv.textContent = 'Sucesso! A API retornou dados.';
+                    statusDiv.className = 'sucesso';
+                    
+                    // JSON.stringify com 3 argumentos para formatar o resultado de forma legível
+                    resultadoDiv.textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    // Se qualquer parte do processo falhar (rede ou parse do JSON), mostramos o erro
+                    statusDiv.textContent = 'Falha no teste!';
+                    statusDiv.className = 'erro';
+                    resultadoDiv.textContent = `Ocorreu um erro: \n${error.message}\n\nVerifique o console do navegador (F12) para mais detalhes.`;
+                    console.error('Detalhes do erro:', error);
+                });
+        });
+    </script>
+
+</body>
+</html>

@@ -73,35 +73,15 @@ document.addEventListener('DOMContentLoaded', function() {
         handleFuncionarioFormSubmit();
     });
     
-    // Configurar a carga de foto
+    // Configurar la carga de foto
     document.getElementById('trigger-photo-upload').addEventListener('click', function() {
         document.getElementById('foto').click();
     });
-
+    
     document.getElementById('foto').addEventListener('change', function() {
         displaySelectedImage(this);
-        // If a user selects a new photo, it should cancel the removal request.
-        document.getElementById('remove_foto_hidden').value = '0';
     });
-
-    const removePhotoButton = document.getElementById('remove-photo');
-    if (removePhotoButton) {
-        removePhotoButton.addEventListener('click', function() {
-            // Clear the file input to prevent resubmission of the old file
-            const fotoInput = document.getElementById('foto');
-            fotoInput.value = '';
-
-            // Update the preview to show the placeholder
-            const photoPreview = document.getElementById('photo-preview');
-            photoPreview.innerHTML = '<i class="fas fa-user"></i>';
-
-            // Set the hidden flag that the backend will check
-            document.getElementById('remove_foto_hidden').value = '1';
-
-            showNotification('Foto marcada para remoção. Salve as alterações para confirmar.', 'info');
-        });
-    }
-
+    
     document.getElementById('fotoFuncionarioPut').addEventListener('change', function() {
         displaySelectedImage(this, 'photo-preview-put');
     });
@@ -251,11 +231,12 @@ function renderFuncionariosTable() {
     let html = '';
     
     funcionarios.forEach(func => {
-        // Log detallado para cada funcionario
-        console.log('Processando funcionario:', func);
-        // Garantir que temos um ID válido como string
-        const funcId = String(func.id_funcionario || func.id || '');
-        console.log('ID usado (string):', funcId, typeof funcId);
+        // Log detalhado para cada funcionário
+        console.log('Processando funcionário:', func);
+        
+        // Garantir que temos um ID válido
+        const funcId = func.id_funcionario || func.id || '';
+        console.log('ID usado:', funcId);
         
         // Construir nome completo com verificação de valores nulos
         const nome = func.nome || '';
@@ -388,8 +369,7 @@ function openCreateModal() {
     document.getElementById('funcionario-form').reset();
     document.getElementById('funcionario-id').value = '';
     document.getElementById('photo-preview').innerHTML = '<i class="fas fa-user"></i>';
-    document.getElementById('remove_foto_hidden').value = '0'; // Reset remove photo flag
-
+    
     // Mudar o título do modal
     document.getElementById('modal-title').textContent = 'Adicionar Novo Funcionário';
     
@@ -397,15 +377,11 @@ function openCreateModal() {
     document.getElementById('funcionario-modal').classList.add('show');
 }
 
-// Función robusta para encontrar funcionario por ID
-function findFuncionarioById(id) {
-    id = String(id);
-    return funcionarios.find(f => String(f.id_funcionario ?? f.id) === id);
-}
-
 // Ver detalhes de um funcionário
 function viewFuncionario(id) {
-    const funcionario = findFuncionarioById(id);
+    // Buscar o funcionário no array local (em um ambiente real, o obteríamos da API)
+    const funcionario = funcionarios.find(f => (f.id_funcionario || f.id) === id);
+    
     if (!funcionario) {
         showNotification('Funcionário não encontrado', 'error');
         return;
@@ -444,8 +420,8 @@ function viewFuncionario(id) {
     
     // Mostrar foto se existe
     const photoContainer = document.getElementById('view-photo-container');
-    if (funcionario.foto_base64) {
-        photoContainer.innerHTML = `<img src="${funcionario.foto_base64}" alt="${funcionario.nome} ${funcionario.sobrenome}">`;
+    if (funcionario.foto) {
+        photoContainer.innerHTML = `<img src="${funcionario.foto}" alt="${funcionario.nome} ${funcionario.sobrenome}">`;
     } else {
         photoContainer.innerHTML = '<i class="fas fa-user-circle fa-5x"></i>';
     }
@@ -465,12 +441,19 @@ function viewFuncionario(id) {
 // Abrir modal para editar funcionário
 async function editFuncionario(id) {
     try {
-        const funcionario = findFuncionarioById(id);
+        // Em um ambiente real, obteríamos o funcionário da API
+        // const response = await fetch(`${API_BASE_URL}/${id}`);
+        // const data = await response.json();
+        // const funcionario = data.data;
+        
+        // Por enquanto buscaremos em nosso array local
+        const funcionario = funcionarios.find(f => (f.id_funcionario || f.id) === id);
+        
         if (!funcionario) {
             showNotification('Funcionário não encontrado', 'error');
             return;
         }
-        // Preencher o formulário com os dados do funcionário
+          // Preencher o formulário com os dados do funcionário
         document.getElementById('funcionario-id').value = funcionario.id_funcionario || funcionario.id;
         document.getElementById('nombre').value = funcionario.nome;
         document.getElementById('sobrenome').value = funcionario.sobrenome;
@@ -478,23 +461,20 @@ async function editFuncionario(id) {
         document.getElementById('numero_documento').value = funcionario.numero_documento;
         document.getElementById('cargo').value = funcionario.cargo;
         document.getElementById('data_contratacao').value = funcionario.data_contratacao;
-
+        
         // Adicionar preenchimento da data de nascimento se existir
         if (document.getElementById('data_nascimento') && funcionario.data_nascimento) {
             document.getElementById('data_nascimento').value = funcionario.data_nascimento;
         }
-
+        
         document.getElementById('codigo_sistema_interno').value = funcionario.codigo_sistema_interno || '';
         document.getElementById('id_departamento').value = funcionario.id_departamento || '';
         document.getElementById('id_chefe_direto').value = funcionario.id_chefe_direto || '';
-
-        // Reset the remove photo flag every time the modal is opened
-        document.getElementById('remove_foto_hidden').value = '0';
-
+        
         // Atualizar a visualização prévia da foto se existir
         const photoPreview = document.getElementById('photo-preview');
-        if (funcionario.foto_base64) {
-            photoPreview.innerHTML = `<img src="${funcionario.foto_base64}" alt="${funcionario.nome}">`;
+        if (funcionario.foto) {
+            photoPreview.innerHTML = `<img src="${funcionario.foto}" alt="${funcionario.nome}">`;
         } else {
             photoPreview.innerHTML = '<i class="fas fa-user"></i>';
         }
@@ -512,6 +492,7 @@ async function editFuncionario(id) {
 
 // Confirmar exclusão de funcionário
 function confirmDeleteFuncionario(id) {
+    console.log('Se hizo clic en eliminar para el ID:', id); // Agregado para depuración
     selectedFuncionarioId = id;
     document.getElementById('confirm-delete-modal').classList.add('show');
 }
@@ -545,30 +526,24 @@ async function handleFuncionarioFormSubmit() {
     const fileInput = document.getElementById('foto');
     let body, headers = {};
     let useMultipart = false;
-    // Si hay foto o es edición, usar multipart siempre
+
     if ((fileInput && fileInput.files.length > 0) || isEdit) {
         useMultipart = true;
     }
+
     if (useMultipart) {
         body = new FormData(form);
-        // Si hay foto nueva, agregarla; si no, no agregar campo 'foto'
         if (fileInput && fileInput.files.length > 0) {
             body.append('foto', fileInput.files[0]);
-        } else {
-            body.delete('foto'); // Elimina campo vazio se existe
-        }
-        // Para PUT, usar POST + X-HTTP-Method-Override
-        if (isEdit) {
-            headers['X-HTTP-Method-Override'] = 'PUT';
         }
     } else {
-        // Si no hay foto e es creación, enviar JSON
         const formData = new FormData(form);
         const obj = {};
         formData.forEach((v, k) => obj[k] = v);
         body = JSON.stringify(obj);
         headers['Content-Type'] = 'application/json';
     }
+
     try {
         const response = await fetch(url, {
             method: useMultipart ? 'POST' : (isEdit ? 'PUT' : 'POST'),
@@ -732,7 +707,7 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Agregado para depuración - mostrar notificaciones con log en consola
+// Agregado para depuración - mostrar notificaciones com log en consola
 function showDebugNotification(message, type = 'info') {
     console.log(`[DEBUG] ${type.toUpperCase()}: ${message}`);
     
